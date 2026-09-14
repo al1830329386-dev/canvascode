@@ -18,6 +18,7 @@
 
 <p align="center">
   <a href="#-为什么做-canvascode">💡 为什么做 CanvasCode</a> •
+  <a href="releases/README.md">📦 软件下载中心</a> •
   <a href="#-双形态架构浏览器插件--桌面独立工作台-studio">💻 双形态模式</a> •
   <a href="#-核心好用特性">✨ 功能特性</a> •
   <a href="#️-快捷键速查表">⌨️ 快捷键</a> •
