@@ -1,0 +1,27 @@
+﻿name: Publish GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: CanvasCode Release ${{ github.ref_name }}
+          body_path: releases/README.md
+          files: |
+            releases/canvascode-studio-windows-x64-v1.0.0.zip
+            releases/canvascode-extension-v1.0.0.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
