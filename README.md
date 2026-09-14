@@ -17,9 +17,9 @@
 </p>
 
 <p align="center">
-  <a href="#-什么是-canvascode">🌟 核心亮点</a> •
-  <a href="#-痛点-vs-解决方案">⚡ 痛点对比</a> •
-  <a href="#-8-大核心功能特性">✨ 功能特性</a> •
+  <a href="#-为什么做-canvascode">💡 为什么做 CanvasCode</a> •
+  <a href="#-纯文字沟通-vs-canvascode-直觉操作">⚡ 痛点对比</a> •
+  <a href="#-核心好用特性">✨ 功能特性</a> •
   <a href="#️-快捷键速查表">⌨️ 快捷键</a> •
   <a href="#-快速安装与使用">🚀 安装指南</a> •
   <a href="#-搭配现代-ai-编程助手的工作流">🤖 AI 协同</a> •
@@ -200,20 +200,148 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
 
 ## 🌐 English Overview
 
-**CanvasCode** is an open-source browser extension designed to eliminate the friction between front-end visual adjustments and AI code generation.
+### 💡 Why CanvasCode?
 
-### The Core Problem
-When generating web apps using AI coding tools, 90% of the UI is generated well, but the final 10% (margins, sizes, alignments, colors) requires repetitive prompt iterations. Describing spatial changes in text (*"move this 8px right and make it slightly wider"*) frequently causes AI hallucinations and broken CSS layouts.
+Building web UIs with AI is remarkably fast and exciting. But as every developer knows all too well: **the most exhausting part is always that final 10% of detail polishing**.
+- A card feels about 12 pixels too narrow and looks cramped;
+- A button's background color feels dull and needs a fresher shade;
+- The heading and subtitle are suffocatingly close, lacking visual breathing room;
+- An awkward placeholder icon in the corner needs to be tossed out...
 
-### How CanvasCode Solves It
-1. **Figma/PPT-Style Resizing**: 8 interactive control handles for arbitrary sizing, with `Shift`-key aspect-ratio locking and real-time pixel HUDs.
-2. **120 FPS Magnetic Snapping**: GPU-accelerated dragging (`translate3d` + `rAF`) with automatic magnetic snapping to neighboring edges and centers.
-3. **Instant Text Editing & Deletion**: Double-click any element to edit text in place; hit `Delete`/`Backspace` to prune elements.
-4. **Complete Undo / Redo**: Global `Ctrl + Z` and `Ctrl + Y` history snapshots for all transformations.
-5. **1px Keyboard Micro-adjustments**: Precise movement using Arrow keys (1px) and `Shift + Arrow` (10px).
-6. **Smart Auto-Dodge Toolbar**: Floating panel with 4-direction viewport collision avoidance and free dragging.
-7. **1-Click Multimodal Export**: Captures clean full-resolution screenshots directly to your clipboard and compiles structured Markdown prompts with Tailwind CSS mappings for modern multimodal AI coding tools.
-8. **100% Local & Private**: Sandboxed in a Shadow DOM with zero network telemetry or tracking.
+When you're forced to describe these visual tweaks in plain text:
+> *"Make the second card on the left slightly wider, add 8px right margin, and change the blue to a lighter hue..."*
+
+The reality is frustrating: **You spend 5 minutes typing, the AI takes 3 attempts, and instead of aligning properly, it edits the wrong sibling class or breaks your entire flex/grid layout.**
+
+**Since our natural intuition for layout design is to grab things with our hands and drag, stretch, and reposition them—just like in Figma or PPT—why can't we do that directly on the live webpage?**
+
+That is the single mission behind **CanvasCode**:
+Turn your live browser into an interactive canvas. Drag positions, stretch bounding boxes with 8 handles, double-click to edit text, and pick colors directly on the live DOM. Once you're happy with how it looks, **1-click export a clean high-res screenshot and structured Markdown specifications** straight into your AI chat—saving you from endless back-and-forth prompt wrestling.
+
+---
+
+### ⚡ Text Prompts vs. CanvasCode Intuitive Workflow
+
+| Text-Only AI Prompting 😫 | Hands-On with CanvasCode ✨ |
+| :--- | :--- |
+| **Vague & Abstract**: *"Nudge this card right a bit, make it slightly wider"* | **True WYSIWYG**: Grab the element with your mouse, stretch with 8 handles to the exact sweet spot |
+| **AI Hallucinations**: Modifies wrong sibling containers or wrecks global CSS | **Pinpoint Targeting**: Automatically captures the unique DOM selector with pixel-accurate CSS diffs |
+| **Context Exhaustion**: 5 rounds of prompting eating up token windows | **One-Shot Resolution**: 1-click export of visual screenshot + standard Tailwind CSS classes |
+| **CSS Mental Overload**: Constantly looking up CSS syntax for simple adjustments | **Zero Cognitive Load**: Real-time pixel HUD indicator, adjust visually like building blocks |
+
+---
+
+### ✨ Core Features
+
+#### 1. 📐 Figma/PPT-Style Resizing (8 Control Handles)
+* Click any card, container, image, or button to immediately spawn **8 control handles** (4 corners + 4 edges).
+* A real-time floating HUD displays live width and height in pixels (e.g., `360px × 220px`).
+* **Hold the `Shift` key while dragging corner handles** to lock the aspect ratio—preventing images and icons from distorting.
+
+#### 2. 🧲 120 FPS Magnetic Snapping & Alignment Guidelines
+* Built on GPU hardware acceleration (`requestAnimationFrame` + `translate3d`), remaining buttery-smooth even on dense, complex web pages.
+* Dragging an element near neighboring cards or container centers automatically snaps with glowing red alignment guide lines.
+* Toggle magnetic snapping on/off anytime with the **`S` key**, or **hold `Alt` while dragging** for temporary freeform movement.
+
+#### 3. ⌨️ Instant In-Place Text Editing & Delete Key Removal
+* **Double-click** any heading, paragraph, badge, or button text to edit copy directly in place with instant visual feedback.
+* Clean up unnecessary layout clutter by selecting any unwanted element and hitting **`Delete`** or **`Backspace`**.
+
+#### 4. ↩️ Comprehensive Undo & Redo (Zero-Stress Tweaking)
+* Every action—resizing, dragging, text editing, styling changes, and deletions—is tracked in a local history snapshot stack.
+* Full support for **`Ctrl + Z` (Undo)** and **`Ctrl + Y` (Redo)**. Experiment freely and revert mistakes in a millisecond.
+
+#### 5. 🎯 1px / 10px Keyboard Precision Nudge
+* Select an element and use the **Arrow keys (`↑` `↓` `←` `→`)** for 1-pixel precision positioning.
+* Hold **`Shift` + Arrow keys** to jump by 10 pixels, satisfying even the strictest pixel-perfectionists.
+
+#### 6. 🛡️ Auto-Dodge Floating Toolbar (Never Blocks Your View)
+* Drag the toolbar freely by the top grip handle (`⠿`); **double-click the handle** to reset to smart auto-follow.
+* Built-in viewport collision detection automatically repositions the panel to the opposite edge when nearing screen boundaries, ensuring your target element is never obscured.
+* Press **`Esc`** or click any empty area to deselect or close modals.
+
+#### 7. 📸 1-Click Multimodal Export (Screenshot + Structured Prompt)
+* Click **【📸 1-Click Screenshot + Export Prompt】**: CanvasCode automatically hides handles and guidelines to take a clean screenshot directly to your system clipboard.
+* Simultaneously compiles a structured Markdown document containing exact DOM selectors, user notes, and computed Tailwind CSS class diffs (e.g., `w-[360px] bg-emerald-500 rounded-2xl`).
+* Paste both the screenshot and the prompt into your multimodal AI coding assistant for deterministic, one-shot code updates.
+
+#### 8. 🔒 100% Local & Shadow DOM Sandboxed
+* The entire CanvasCode UI is encapsulated within an isolated **Closed Shadow DOM**, guaranteeing zero CSS leakage into or from the host page.
+* Operates 100% locally with zero external network tracking or telemetry.
+
+---
+
+### ⌨️ Keyboard Shortcuts Cheatsheet
+
+| Key / Action | Description | Best For |
+| :--- | :--- | :--- |
+| **Left Click** | Select element, reveal handles & toolbar | Element picking |
+| **Double Click** | Edit text content in place | Instant copy changes |
+| **Drag Top Grip `⠿`** | Move element position (with magnetic snap) | Layout rearrangement |
+| **Drag 8 Handles** | Resize element dimensions (width / height) | Sizing containers |
+| **`Shift` + Drag Corner** | Lock aspect ratio for proportional scaling | Images, icons, avatars |
+| **`Delete` / `Backspace`** | Hide or delete selected element | Pruning clutter |
+| **`Ctrl + Z`** | Undo previous modification | Reverting mistakes |
+| **`Ctrl + Y`** (`Ctrl+Shift+Z`) | Redo previously undone action | Re-applying tweaks |
+| **`↑` `↓` `←` `→` Arrow Keys** | 1px micro-nudge positioning | Pixel alignment |
+| **`Shift` + Arrow Keys** | 10px fast movement | Rapid repositioning |
+| **`S` Key** | Toggle magnetic snapping on/off | Switching drag modes |
+| **Hold `Alt` while dragging** | Temporarily bypass all magnetic snapping | Fine freeform placement |
+| **`Esc` / Click Blank Area** | Deselect element / close dialogs | Exiting edit mode |
+| **Double Click Toolbar Grip** | Reset toolbar position to auto-follow | Panel repositioning |
+
+---
+
+### 🚀 Quick Start & Installation
+
+#### Option 1: Chrome / Edge Extension (Recommended)
+
+1. Clone or download this repository:
+   ```bash
+   git clone https://github.com/al1830329386-dev/canvascode.git
+   ```
+2. Open Chrome or Edge and navigate to:
+   * Chrome: `chrome://extensions`
+   * Edge: `edge://extensions`
+3. Enable **Developer mode** in the top-right corner;
+4. Click **Load unpacked** in the top-left;
+5. Select the cloned `canvascode` directory to install!
+6. *(Optional)* To test on local HTML files (`file:///...`), click **Details** on the extension and enable **"Allow access to file URLs"**.
+
+#### Option 2: Standalone Sandbox Test Page (Zero Install)
+
+Simply double-click `test-page.html` in your browser. You can immediately test all 8-handle resizing, magnetic snapping, text editing, and prompt export with zero installation required!
+
+---
+
+### 🤖 AI Workflow Diagram
+
+```text
++-------------------------------------------------------+
+|  1. Open your web app (localhost or production)       |
+|  2. Click CanvasCode extension icon to enter canvas   |
+|  3. Drag, resize, edit text, pick colors visually     |
+|  4. Click [📸 1-Click Screenshot + Export Prompt]     |
+|  5. Clean screenshot copied to clipboard + Prompt     |
++-------------------------------------------------------+
+                           │
+                           ▼
++-------------------------------------------------------+
+|  6. Switch to your multimodal AI coding assistant      |
+|  7. Press Ctrl + V to paste screenshot & prompt       |
+|  8. AI applies the precise CSS / TSX / Vue patch!     |
++-------------------------------------------------------+
+```
+
+---
+
+### 🏗️ Under the Hood
+
+* **Zero Dependencies**: 100% vanilla JavaScript with zero bloated build steps or runtime npm dependencies.
+* **Shadow DOM Encapsulation**: Complete isolation from host CSS to prevent style collisions.
+* **GPU Hardware Acceleration**: Transitions throttled with `requestAnimationFrame` and CSS transforms for smooth 120 FPS interaction.
+* **Tailwind CSS Compiler**: Automatically converts visual style changes (e.g., `#10b981` → `bg-emerald-500`, `320px` → `w-[320px]`) into standard utility classes.
+* **Client-Side Canvas Renderer**: Native high-res screenshot capture that hides editing artifacts automatically.
 
 ---
 
