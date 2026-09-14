@@ -422,6 +422,18 @@ Simply double-click `test-page.html` in your browser. You can immediately test a
 
 ---
 
+## ⭐ Star 走势与支持 (Star History)
+
+如果 CanvasCode 对你的前端微调排版或 AI 辅助开发有所帮助，请为这个开源项目点一个 **Star ⭐️**！你的支持是作者持续优化演进的最大动力！
+
+<p align="center">
+  <a href="https://star-history.com/#al1830329386-dev/canvascode&Date">
+    <img src="https://api.star-history.com/svg?repos=al1830329386-dev/canvascode&type=Date" alt="CanvasCode Star History Chart" width="700" />
+  </a>
+</p>
+
+---
+
 ## 📄 开源协议与版权声明 (License & Copyright)
  
  本项目采用 [GNU General Public License v3.0 (GPL-3.0)](LICENSE) 强开源协议。
