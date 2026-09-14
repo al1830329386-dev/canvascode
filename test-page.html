@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CanvasCode - 像做PPT一样可视化微调网页</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f8fafc; color: #1e293b; padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 40px; }
+    .badge { display: inline-block; background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 9999px; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+    h1 { font-size: 32px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    p.subtitle { font-size: 16px; color: #64748b; line-height: 1.6; }
+
+    /* Demo cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-2px); }
+    .card-icon { width: 44px; height: 44px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+    .card h3 { font-size: 18px; margin-bottom: 8px; color: #0f172a; }
+    .card p { font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 20px; }
+
+    /* Demo buttons */
+    .btn-action { display: inline-block; background: #2563eb; color: #ffffff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; }
+    .btn-secondary { background: #f1f5f9; color: #475569; }
+
+    /* CTA Section */
+    .cta-box { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 36px; color: #ffffff; text-align: center; margin-top: 40px; }
+    .cta-box h2 { font-size: 24px; margin-bottom: 12px; }
+    .cta-box p { color: #94a3b8; font-size: 15px; margin-bottom: 24px; }
+    .cta-btn { background: #6366f1; color: #ffffff; border: none; padding: 12px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+    /* Helper tips */
+    .tips-banner { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 16px 20px; margin-bottom: 30px; font-size: 14px; color: #92400e; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tips-banner">
+      🌟 <strong>CanvasCode v1.0 正式版 (像 PPT / Figma 一样自由排版)</strong>：<br/>
+      1. <strong>PPT 级 8 处手柄拉伸变形</strong>：选中任意卡片、容器、按钮或图片，边缘和四角会出现 <strong>8 个微调手柄</strong>，像拉伸图片一样自由拉伸；按住 <strong>Shift 键</strong>可等比缩放！<br/>
+      2. <strong>极速改文字与删除 (NEW!)</strong>：在网页上<strong>直接双击</strong>任何标题或按钮即可快速编辑文案；选中组件后直接按键盘 <strong>Delete / Backspace 键</strong>一键移除（支持 <strong>Ctrl+Z</strong> 撤销还原）！<br/>
+      3. <strong>智能防挡与工具栏自由拖拽</strong>：工具栏顶部支持自由拖动（双击恢复跟随），且具备四向自动避让，绝不遮挡选中元素！<br/>
+      4. <strong>完整撤销与重做系统</strong>：所有拉伸、删除、位移、样式调整均支持 <strong>Ctrl + Z</strong>（撤销）和 <strong>Ctrl + Y</strong>（重做）！<br/>
+      5. <strong>键盘像素级微调 & 磁吸吸附</strong>：键盘 <strong>↑ ↓ ← → 方向键</strong> 可 1px 微调（Shift+方向键为 10px）；按 <strong>S 键</strong> 切换磁吸辅助线对齐！<br/>
+      6. <strong>一键截图与图文 Prompt 导出</strong>：修改后点击右下角 <strong>【📸 一键截图 + 图文一体导出】</strong>，高清截图自动复制到剪贴板，带上结构化 Prompt 直接发给 Claude 3.7 / Cursor 实现多模态精准编程！
+    </div>
+
+    <header class="header">
+      <span class="badge">🚀 现代化智能应用</span>
+      <h1 id="hero-title">构建下一代 AI 产品界面</h1>
+      <p class="subtitle">无需死记硬背 CSS 属性，用鼠标直觉操作界面，直接把修改意图编译为高质量 AI 提示词。</p>
+    </header>
+
+    <div class="grid">
+      <div class="card" id="card-1">
+        <div class="card-icon">⚡</div>
+        <h3>极速可视化微调</h3>
+        <p>直接在真实运行的页面上点击元素，调整宽泛间距与尺寸，所见即所得。</p>
+        <button class="btn-action">立即体验</button>
+      </div>
+
+      <div class="card" id="card-2">
+        <div class="card-icon">🎨</div>
+        <h3>告别前端术语</h3>
+        <p>吸色换背景、圆角胶囊化、字号拉大、元素排序，小白也能像做 PPT 一样排版。</p>
+        <button class="btn-action btn-secondary">查看演示</button>
+      </div>
+
+      <div class="card" id="card-3">
+        <div class="card-icon">🤖</div>
+        <h3>一键编译 Prompt</h3>
+        <p>自动对比修改前后差异，输出精准符合 Cursor 和 Claude 标准的结构化修改指令。</p>
+        <button class="btn-action">复制代码</button>
+      </div>
+    </div>
+
+    <div class="cta-box" id="cta-section">
+      <h2>准备好开始优化您的前端了吗？</h2>
+      <p>无需重写代码，几秒内搞定视觉布局微调与代码同步。</p>
+      <button class="cta-btn" id="cta-main-btn">免费开始使用 →</button>
+    </div>
+  </div>
+
+  <!-- 自动引入微调引擎 -->
+  <script src="tweak-engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Production / Distribution
+dist/*.zip
+dist/ai-visual-tweak-*/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local Environment & Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Author's Private Marketing & Launch Materials (Keep Local)
+PROMOTION.md
+CHROMEWEBSTORE.md
+
+# Local AI Agent Configurations & Working Rules
+.agents/
+GEMINI.md
+AGENTS.md

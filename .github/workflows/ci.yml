@@ -1,0 +1,33 @@
+name: CI & Code Integrity Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify JavaScript Syntax
+        run: |
+          node -c tweak-engine.js
+          node -c background.js
+
+      - name: Validate Manifest V3 JSON
+        run: |
+          node -e "const m = JSON.parse(require('fs').readFileSync('manifest.json', 'utf8')); if (m.manifest_version !== 3) process.exit(1);"
+
+      - name: Test Build Packaging
+        run: |
+          zip -r canvascode-test-build.zip manifest.json background.js tweak-engine.js icons libs LICENSE README.md
