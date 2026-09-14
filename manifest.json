@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "CanvasCode - 网页可视化微调与Prompt生成器",
   "version": "1.0.0",
-  "description": "像做PPT一样在网页中可视化拉伸、拖拽排版与改色，一键生成供 Cursor、Claude、Gemini 使用的高精度代码修改 Prompt 与截图",
+  "description": "像做PPT一样在网页中可视化拉伸、拖拽排版与改色，一键生成高精度代码修改 Prompt 与截图",
   "permissions": [
     "activeTab",
     "scripting",

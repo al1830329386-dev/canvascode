@@ -4,7 +4,7 @@
 
 <h3>Turn Any Webpage into an Interactive Figma/PPT Canvas</h3>
 
-<p><strong>Visual Micro-Adjustments in Real Browser • 1-Click Multimodal AI Prompt Compiler (Cursor / Claude / Gemini / Windsurf)</strong></p>
+<p><strong>Visual Micro-Adjustments in Real Browser • 1-Click Multimodal AI Prompt Compiler</strong></p>
 
 <p>像做 PPT 一样在真实网页上拖拽拉伸微调，一键生成供 AI 编程使用的精准规格书与视觉截图</p>
 
@@ -35,7 +35,7 @@
 
 **CanvasCode** 是一款专为**独立开发者、全栈工程师、UI/UX 设计师与 AI 创客**打造的浏览器端无代码可视化微调扩展。
 
-当你使用 **v0 / Bolt.new / Lovable / Cursor** 快速生成前端界面时，往往 **90% 的页面结构已经成型，但剩下的 10% 细节**（边距不对齐、卡片太窄、按钮颜色不够亮、标题行距太挤）需要来回反复微调。用纯文字向 AI 描述这些细微调整极度痛苦，AI 常常**理解偏差、改错位置、破坏原有布局**。
+当你使用现代 AI 编程工具快速生成前端界面时，往往 **90% 的页面结构已经成型，但剩下的 10% 细节**（边距不对齐、卡片太窄、按钮颜色不够亮、标题行距太挤）需要来回反复微调。用纯文字向 AI 描述这些细微调整极度痛苦，AI 常常**理解偏差、改错位置、破坏原有布局**。
 
 **CanvasCode 彻底颠覆这一过程：**
 > 像在 **Figma** 或 **PPT** 里排版一样，直接在运行中的真实网页上：**自由拖拽、8 个控制点拉伸尺寸、双击改文字、换色调边距**。点击一键导出，自动生成**高清改动对比截图**与**结构化 Tailwind / CSS 代码规格 Prompt**，直接粘贴给 AI，**一次命中，100% 落地！**
@@ -85,7 +85,7 @@
 ### 7. 📸 一键高清截图 + 图文一体 Prompt 编译器
 * **全自动纯净截图**：点击【📸 一键截图 + 图文一体导出】，系统自动瞬间隐藏选框、手柄、标尺与工具栏，捕获纯净的高清渲染图，并**自动写入系统剪贴板**。
 * **结构化 Prompt 编译器**：自动对比 DOM 修改前后的计算样式差异，生成包含【组件选择器】、【修改动机】、【自然语言指令】与【推荐 Tailwind CSS 类名（如 `w-[360px] bg-emerald-500 rounded-2xl`）】的标准 Markdown 规格书。
-* **多模态大模型绝配**：把截图与 Prompt 同时喂给 **Claude 3.7 Sonnet / Cursor Agent / GPT-4o**，多模态视差校验 + 精确代码规格，AI 落地成功率达 100%！
+* **多模态 AI 绝配**：把截图与 Prompt 同时喂给支持多模态的 AI 代码助手，视觉校验 + 精确代码规格，AI 理解更透彻，落地更精准稳定！
 
 ### 8. 🔒 纯本地运行与 Shadow DOM 沙箱隔离
 * **零样式污染**：所有 CanvasCode 的控制器、浮窗与提示框完全封装在 **Closed Shadow DOM** 内，宿主网页的任何 CSS 规则都不会影响扩展，扩展也绝不污染宿主样式。
@@ -151,17 +151,11 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
                            │
                            ▼
 +-------------------------------------------------------+
-|  6. 切换到 Cursor / Claude 3.7 / GPT-4o / Windsurf   |
+|  6. 切换到你的 AI 编程助手或对话界面                 |
 |  7. Ctrl + V 粘贴图片与结构化 Prompt                  |
 |  8. AI 秒级读懂视觉意图，精准修改你的 TSX / Vue / HTML |
 +-------------------------------------------------------+
 ```
-
-### 推荐配合的大模型与 IDE：
-* **Cursor (Composer / Agent)**：直接把截图和 Markdown 规格书粘贴进 `Ctrl + L` 或 Composer，零歧义执行。
-* **Claude 3.7 Sonnet / Claude Code CLI**：业界最强多模态视觉推理能力，结合 CanvasCode 提供的精确选择器与像素差值，生成极高质量的代码补丁。
-* **GPT-4o (ChatGPT Canvas)**：精准识别前后视觉对比，自动替换 Tailwind 类名。
-* **Windsurf (Cascade)**：直接在 Cascade 流中提交多模态改动指令。
 
 ---
 
@@ -188,7 +182,7 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
 - [ ] **v2.0.0 (独立桌面端跨平台应用 - Desktop App)**：
   - 基于 **Tauri / Rust** 打造超轻量桌面客户端；
   - **直通本地文件系统**：突破浏览器沙箱限制，在画布上拖拽拉伸的修改，直接通过 Babel / SWC AST 解析写回本地源文件（如 `App.tsx`、`index.vue`），结合 Vite / Turbopack 实现真正的**所见即所得本地代码热更新**！
-- [ ] **VS Code / Cursor 官方扩展生态**：在编辑器侧边栏内嵌 Webview 画布，修改成果直接打通内嵌终端与 AI 对话窗口。
+- [ ] **主流 IDE 编辑器官方扩展生态**：在编辑器侧边栏内嵌 Webview 画布，修改成果直接打通内嵌终端与 AI 对话窗口。
 - [ ] **多端响应式模拟画布**：一键切换 iPhone 16 Pro、iPad、MacBook 等多种预设分辨率容器进行对比微调。
 
 ---
@@ -200,7 +194,7 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
 **CanvasCode** is an open-source browser extension designed to eliminate the friction between front-end visual adjustments and AI code generation.
 
 ### The Core Problem
-When generating web apps using **Cursor, v0, or Bolt**, 90% of the UI is generated well, but the final 10% (margins, sizes, alignments, colors) requires repetitive prompt iterations. Describing spatial changes in text (*"move this 8px right and make it slightly wider"*) frequently causes AI hallucinations and broken CSS layouts.
+When generating web apps using AI coding tools, 90% of the UI is generated well, but the final 10% (margins, sizes, alignments, colors) requires repetitive prompt iterations. Describing spatial changes in text (*"move this 8px right and make it slightly wider"*) frequently causes AI hallucinations and broken CSS layouts.
 
 ### How CanvasCode Solves It
 1. **Figma/PPT-Style Resizing**: 8 interactive control handles for arbitrary sizing, with `Shift`-key aspect-ratio locking and real-time pixel HUDs.
@@ -209,7 +203,7 @@ When generating web apps using **Cursor, v0, or Bolt**, 90% of the UI is generat
 4. **Complete Undo / Redo**: Global `Ctrl + Z` and `Ctrl + Y` history snapshots for all transformations.
 5. **1px Keyboard Micro-adjustments**: Precise movement using Arrow keys (1px) and `Shift + Arrow` (10px).
 6. **Smart Auto-Dodge Toolbar**: Floating panel with 4-direction viewport collision avoidance and free dragging.
-7. **1-Click Multimodal Export**: Captures clean full-resolution screenshots directly to your clipboard and compiles structured Markdown prompts with Tailwind CSS mappings for **Claude 3.7**, **Cursor**, and **GPT-4o**.
+7. **1-Click Multimodal Export**: Captures clean full-resolution screenshots directly to your clipboard and compiles structured Markdown prompts with Tailwind CSS mappings for modern multimodal AI coding tools.
 8. **100% Local & Private**: Sandboxed in a Shadow DOM with zero network telemetry or tracking.
 
 ---

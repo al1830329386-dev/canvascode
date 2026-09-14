@@ -401,7 +401,7 @@
       </div>
       <div class="modal-body">
         <div style="font-size:12px;color:#64748b;line-height:1.5;">
-          ✨ 已成功将页面当前调整后的视觉状态截图！你可以直接复制图片或保存文件，连同下方 Prompt 发送给 <strong>Claude 3.7 / GPT-4o / Cursor</strong>，实现多模态精准编程！
+          ✨ 已成功将页面当前调整后的视觉状态截图！你可以直接复制图片或保存文件，连同下方 Prompt 发送给 <strong>AI 编程助手</strong>，实现多模态精准编程！
         </div>
         <div class="img-preview-box">
           <img id="modal-img-preview" src="" alt="Screenshot" />
@@ -1869,7 +1869,7 @@ ${itemsMarkdown}
   btnCopyPrompt.onclick = () => {
     const promptText = generatePrompt();
     navigator.clipboard.writeText(promptText).then(() => {
-      showToast("🎉 AI 修改指令已复制到剪贴板！可直接粘贴至 Cursor / Claude");
+      showToast("🎉 AI 修改指令已复制到剪贴板！可直接粘贴至 AI 对话框");
     }).catch(() => {
       const ta = document.createElement("textarea");
       ta.value = promptText;

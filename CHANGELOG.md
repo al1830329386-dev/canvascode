@@ -20,5 +20,5 @@ Turn any webpage into an interactive Figma/PPT canvas for instant visual micro-a
 - **Complete Undo / Redo**: Global `Ctrl + Z` and `Ctrl + Y` history stack (supporting up to 30 snapshots) for all mutations.
 - **1px / 10px Pixel Nudge**: Keyboard directional arrow keys for micro-adjustments (`Arrow` = 1px, `Shift + Arrow` = 10px).
 - **Auto-Dodge Floating Toolbar**: Draggable glassmorphic floating control panel with 4-direction viewport edge collision avoidance.
-- **1-Click Multimodal Prompt & Screenshot Export**: Instant visual capture to clipboard alongside structured Markdown prompts with Tailwind CSS class mapping for Cursor, Claude 3.7 Sonnet, GPT-4o, and Windsurf.
+- **1-Click Multimodal Prompt & Screenshot Export**: Instant visual capture to clipboard alongside structured Markdown prompts with Tailwind CSS class mapping for modern multimodal AI coding assistants.
 - **Zero Runtime Dependencies & Shadow DOM Isolation**: 100% vanilla JavaScript with full encapsulation inside Shadow Root, preventing any CSS leakage into host web apps.
