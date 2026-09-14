@@ -828,6 +828,7 @@
       });
       list.appendChild(item);
     });
+    if (typeof notifyStudioState === "function") notifyStudioState();
   }
 
   // --- TOOLBAR DRAGGING & POSITIONING STATE ---
@@ -869,6 +870,7 @@
     selectBox.style.left = rect.left + "px";
     selectBox.style.width = rect.width + "px";
     selectBox.style.height = rect.height + "px";
+    if (typeof notifyStudioSelection === "function") notifyStudioSelection(selectedEl);
 
     if (isResizing) {
       toolbar.style.display = "none";
@@ -1908,6 +1910,86 @@ ${itemsMarkdown}
     showToast("已退出可视化微调模式");
   };
 
+  // --- STUDIO DESKTOP WORKBENCH BRIDGE ---
+  function notifyStudioSelection(el) {
+    if (!el) return;
+    try {
+      const rect = el.getBoundingClientRect();
+      const cs = window.getComputedStyle(el);
+      const summary = getElementSummary(el);
+      const detail = {
+        tagName: el.tagName.toLowerCase(),
+        id: el.id || "",
+        className: el.className || "",
+        width: rect.width,
+        height: rect.height,
+        margin: cs.margin,
+        padding: cs.padding,
+        fontSize: cs.fontSize,
+        borderRadius: cs.borderRadius,
+        bgColorHex: cs.backgroundColor || "#ffffff",
+        textColorHex: cs.color || "#000000",
+        selector: summary.selector
+      };
+      window.dispatchEvent(new CustomEvent("canvascode:elementSelected", { detail }));
+      if (window.parent && window.parent !== window) {
+        window.parent.dispatchEvent(new CustomEvent("canvascode:elementSelected", { detail }));
+      }
+    } catch (err) {}
+  }
+
+  function notifyStudioState() {
+    try {
+      const historyList = [];
+      changes.forEach((val) => {
+        const modSummaries = Object.values(val.mods || {}).map(m => m.label || m.tailwind).join(", ");
+        const tailwindList = Object.values(val.mods || {}).map(m => m.tailwind).filter(Boolean).join(" ");
+        historyList.push({
+          selector: val.selector,
+          summary: modSummaries || "样式已微调",
+          tailwindClasses: tailwindList
+        });
+      });
+      const detail = {
+        canUndo: undoStack.length > 0,
+        canRedo: redoStack.length > 0,
+        history: historyList
+      };
+      window.dispatchEvent(new CustomEvent("canvascode:stateChanged", { detail }));
+      if (window.parent && window.parent !== window) {
+        window.parent.dispatchEvent(new CustomEvent("canvascode:stateChanged", { detail }));
+      }
+    } catch (err) {}
+  }
+
+  window.__canvascodeApplyInspectorUpdate = function(props) {
+    if (!selectedEl) return;
+    if (props.width) selectedEl.style.width = props.width;
+    if (props.height) selectedEl.style.height = props.height;
+    if (props.backgroundColor) selectedEl.style.backgroundColor = props.backgroundColor;
+    if (props.borderRadius) selectedEl.style.borderRadius = props.borderRadius;
+    if (props.fontSize) selectedEl.style.fontSize = props.fontSize;
+    if (props.color) selectedEl.style.color = props.color;
+    updateSelection();
+    updateDock();
+  };
+
+  window.__canvascodeToggleSnap = function(enabled) {
+    isSnapEnabled = enabled;
+    updateSnapUI();
+  };
+
+  window.__canvascodeUndo = undo;
+  window.__canvascodeRedo = redo;
+  window.__canvascodeTriggerExport = () => {
+    const btn = shadow.getElementById("dock-screenshot");
+    if (btn) btn.click();
+  };
+  window.__canvascodeResetAll = () => {
+    btnResetAll.click();
+  };
+
   updateHistoryButtons();
   showToast("🚀 CanvasCode v1.0 已就绪！双击改字 · 8手柄拉伸 · Ctrl+Z撤销");
 })();
+

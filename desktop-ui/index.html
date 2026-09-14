@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CanvasCode Studio — 可视化微调与代码同步工作台</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation & Control Bar -->
+  <header class="studio-header">
+    <div class="brand-section">
+      <div class="brand-logo">🎨</div>
+      <div class="brand-info">
+        <span class="brand-name">CanvasCode</span>
+        <span class="brand-tag">Studio v2.0</span>
+      </div>
+    </div>
+
+    <!-- URL & Target Loader -->
+    <div class="url-bar-container">
+      <span class="url-protocol">http://</span>
+      <input type="text" id="target-url-input" class="url-input" value="localhost:5173" placeholder="输入本地服务端口或网址 (如 localhost:3000)" />
+      <button id="btn-load-url" class="btn-icon" title="加载 / 刷新 (Enter)">↻</button>
+      <button id="btn-open-file" class="btn-subtle" title="选择本地 HTML 文件">📂 打开文件</button>
+    </div>
+
+    <!-- Device Preset Switcher -->
+    <div class="device-switcher">
+      <button class="device-btn active" data-device="desktop" title="桌面端 (1440 × 900)">
+        <span class="device-icon">💻</span> 桌面
+      </button>
+      <button class="device-btn" data-device="tablet" title="平板 (iPad 820 × 1180)">
+        <span class="device-icon">📟</span> 平板
+      </button>
+      <button class="device-btn" data-device="mobile" title="手机 (iPhone 393 × 852)">
+        <span class="device-icon">📱</span> 手机
+      </button>
+      <button class="device-btn" data-device="responsive" title="响应式充满画布">
+        <span class="device-icon">📐</span> 自适应
+      </button>
+    </div>
+
+    <!-- Zoom & Canvas Helpers -->
+    <div class="canvas-helpers">
+      <button id="btn-zoom-out" class="btn-tool" title="缩小 (Ctrl + -)">−</button>
+      <span id="zoom-level-text" class="zoom-text">100%</span>
+      <button id="btn-zoom-in" class="btn-tool" title="放大 (Ctrl + +)">+</button>
+      <button id="btn-zoom-reset" class="btn-tool" title="自适应画布大小">Fit</button>
+      <div class="divider-v"></div>
+      <button id="btn-snap-toggle" class="btn-tool active" title="磁吸辅助线对齐 (S)">🧲 磁吸</button>
+      <button id="btn-undo" class="btn-tool" title="撤销 (Ctrl + Z)" disabled>↩</button>
+      <button id="btn-redo" class="btn-tool" title="重做 (Ctrl + Y)" disabled>↪</button>
+    </div>
+
+    <!-- Top Action CTA -->
+    <div class="header-actions">
+      <button id="btn-export-prompt" class="btn-primary">
+        <span>📸 导出 Prompt</span>
+      </button>
+      <button id="btn-sync-code" class="btn-accent" title="将微调样式直接写回本地项目源文件">
+        <span>⚡ 写回本地代码</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Studio Main Body -->
+  <main class="studio-main">
+    <!-- Left Workspace Canvas -->
+    <section class="canvas-viewport" id="canvas-viewport">
+      <div class="canvas-artboard" id="canvas-artboard">
+        <!-- Device Mockup Shell -->
+        <div class="device-frame desktop" id="device-frame">
+          <div class="device-notch" id="device-notch"></div>
+          <div class="device-titlebar" id="device-titlebar">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="device-url-display" id="device-url-display">http://localhost:5173</span>
+          </div>
+          <div class="device-screen">
+            <iframe id="preview-iframe" src="../test-page.html"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Inspector & Code Sync Sidebar -->
+    <aside class="studio-sidebar" id="studio-sidebar">
+      <nav class="sidebar-tabs">
+        <button class="tab-btn active" data-tab="inspector">📐 样式属性</button>
+        <button class="tab-btn" data-tab="diff">📝 改动清单 <span id="diff-badge" class="badge">0</span></button>
+        <button class="tab-btn" data-tab="sync">⚡ 源码同步</button>
+      </nav>
+
+      <!-- Tab 1: Inspector -->
+      <div class="tab-pane active" id="tab-inspector">
+        <div class="inspector-section selected-target">
+          <div class="section-label">当前选中元素</div>
+          <div class="target-tag-box" id="target-tag-display">
+            <span class="tag-type">div</span>
+            <span class="tag-id">#card-1</span>
+            <span class="tag-classes">.card.p-4</span>
+          </div>
+        </div>
+
+        <!-- Geometry -->
+        <div class="inspector-section">
+          <div class="section-title">尺寸与排版 (Geometry)</div>
+          <div class="prop-grid">
+            <div class="prop-item">
+              <label>宽度 (W)</label>
+              <div class="input-with-unit">
+                <input type="number" id="prop-width" placeholder="auto" />
+                <span>px</span>
+              </div>
+            </div>
+            <div class="prop-item">
+              <label>高度 (H)</label>
+              <div class="input-with-unit">
+                <input type="number" id="prop-height" placeholder="auto" />
+                <span>px</span>
+              </div>
+            </div>
+          </div>
+          <div class="prop-grid">
+            <div class="prop-item">
+              <label>外边距 (Margin)</label>
+              <input type="text" id="prop-margin" placeholder="0px" />
+            </div>
+            <div class="prop-item">
+              <label>内边距 (Padding)</label>
+              <input type="text" id="prop-padding" placeholder="16px" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="inspector-section">
+          <div class="section-title">视觉外观 (Appearance)</div>
+          <div class="prop-grid">
+            <div class="prop-item">
+              <label>背景颜色</label>
+              <div class="color-picker-row">
+                <input type="color" id="prop-bg-color" value="#ffffff" />
+                <input type="text" id="prop-bg-hex" class="hex-text" value="#ffffff" />
+              </div>
+            </div>
+            <div class="prop-item">
+              <label>圆角 (Radius)</label>
+              <div class="input-with-unit">
+                <input type="number" id="prop-radius" value="12" />
+                <span>px</span>
+              </div>
+            </div>
+          </div>
+          <div class="prop-grid">
+            <div class="prop-item">
+              <label>字体大小</label>
+              <div class="input-with-unit">
+                <input type="number" id="prop-font-size" value="14" />
+                <span>px</span>
+              </div>
+            </div>
+            <div class="prop-item">
+              <label>文字颜色</label>
+              <div class="color-picker-row">
+                <input type="color" id="prop-text-color" value="#0f172a" />
+                <input type="text" id="prop-text-hex" class="hex-text" value="#0f172a" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tailwind Mapping -->
+        <div class="inspector-section">
+          <div class="section-title">智能 Tailwind 类名预览</div>
+          <div class="tailwind-box" id="tailwind-preview-box">
+            <code>w-[380px] bg-slate-900 rounded-2xl text-white</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Diff Changelog -->
+      <div class="tab-pane" id="tab-diff">
+        <div class="diff-header">
+          <span>本会话修改记录 (<span id="diff-count">0</span>)</span>
+          <button id="btn-clear-all-diff" class="btn-text-danger">全部还原</button>
+        </div>
+        <div class="diff-list" id="diff-list-container">
+          <div class="empty-state">
+            <span>暂无改动，在画布上直接拖拽或修改元素即可生成记录</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Source Code Sync -->
+      <div class="tab-pane" id="tab-sync">
+        <div class="sync-panel">
+          <div class="sync-banner">
+            <span class="sync-icon">⚡</span>
+            <div>
+              <strong>本地源文件双向同步 (Code Sync)</strong>
+              <p>将画布上的微调样式直接写回本地代码文件，配合 Vite / Webpack 实现热重载闭环！</p>
+            </div>
+          </div>
+
+          <div class="sync-form">
+            <label>目标源码工程路径：</label>
+            <div class="path-picker-row">
+              <input type="text" id="sync-project-path" placeholder="C:/Projects/my-app" />
+              <button id="btn-browse-folder" class="btn-subtle">浏览...</button>
+            </div>
+
+            <div class="diff-preview-box">
+              <div class="diff-preview-title">即将写入的代码变更 (Diff)：</div>
+              <pre class="diff-code"><code id="sync-diff-display">/* 暂无代码待同步 */</code></pre>
+            </div>
+
+            <button id="btn-apply-sync" class="btn-accent-full">
+              <span>🚀 一键应用到本地文件</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

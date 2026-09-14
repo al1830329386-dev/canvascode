@@ -5,6 +5,8 @@ package-lock.json
 # Production / Distribution
 dist/*.zip
 dist/ai-visual-tweak-*/
+src-tauri/target/
+src-tauri/gen/
 
 # Operating System Files
 .DS_Store

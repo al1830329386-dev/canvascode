@@ -11,19 +11,18 @@
 <p align="center">
   <a href="https://github.com/al1830329386-dev/canvascode/releases"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge" alt="Version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=for-the-badge" alt="License: GPL-3.0" /></a>
-  <a href="#"><img src="https://img.shields.io/badge/Platform-Chrome%20%7C%20Edge%20%7C%20Brave-purple.svg?style=for-the-badge" alt="Platform" /></a>
-  <a href="#"><img src="https://img.shields.io/badge/Dependencies-Zero-orange.svg?style=for-the-badge" alt="Zero Dependencies" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Desktop-Tauri%20%7C%20Rust-brightgreen.svg?style=for-the-badge" alt="Desktop: Tauri" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Browser-Chrome%20%7C%20Edge-purple.svg?style=for-the-badge" alt="Browser: Extension" /></a>
   <a href="https://github.com/al1830329386-dev/canvascode/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" /></a>
 </p>
 
 <p align="center">
   <a href="#-为什么做-canvascode">💡 为什么做 CanvasCode</a> •
-  <a href="#-纯文字沟通-vs-canvascode-直觉操作">⚡ 痛点对比</a> •
+  <a href="#-双形态架构浏览器插件--桌面独立工作台-studio">💻 双形态模式</a> •
   <a href="#-核心好用特性">✨ 功能特性</a> •
   <a href="#️-快捷键速查表">⌨️ 快捷键</a> •
-  <a href="#-快速安装与使用">🚀 安装指南</a> •
+  <a href="#-快速安装与启动桌面端">🚀 安装与启动</a> •
   <a href="#-搭配现代-ai-编程助手的工作流">🤖 AI 协同</a> •
-  <a href="#️-未来演进路线-roadmap">🗺️ 路线图</a> •
   <a href="#-english-overview">🌐 English</a>
 </p>
 
@@ -59,6 +58,24 @@
 | **AI 容易改偏**：改错了兄弟组件，甚至改坏原有排版 | **精准定位**：自动捕获被改元素的唯一定位符，样式差值精确到像素，不伤无辜代码 |
 | **反复消耗精力**：打字 5 轮来回试错，耗费大量时间与上下文 | **改完即走**：一键生成视觉对比图与标准样式规格，直接粘进 AI 对话框 |
 | **记不住属性名**：遇到冷门 CSS 属性还要翻文档查类名 | **零心智负担**：实时显示像素尺寸，像搭积木一样随心微调 |
+
+---
+
+## 💻 双形态架构：浏览器插件 + 桌面独立工作台 (Studio)
+
+CanvasCode 现已提供两种使用形态，满足不同场景下的前端排版与微调需求：
+
+### 1. 🌐 浏览器扩展版 (Browser Extension)
+* **轻量免安装**：直接装入 Chrome / Edge / Brave 浏览器。
+* **随时随地介入**：在日常网页浏览、远程生产系统、或任何已运行的 Web 页面上一键开启 PPT 级视觉画布。
+* **即调即走**：调完一键生成视觉对比截图与精准 Markdown 规格，随手粘给 AI 助手。
+
+### 2. 🖥️ CanvasCode Studio 独立桌面工作台 (Desktop App)
+* **超轻量原生架构**：基于 **Tauri + Rust** 打造，可执行文件仅 **~13MB**，内存消耗仅为 Electron 的十分之一。
+* **多端设备模拟器**：内置常用视口一键切换（桌面宽屏 `1440×900`、iPad 平板 `820×1180`、iPhone 手机 `393×852`、自由响应式容器）。
+* **画布缩放与居中**：支持 `Fit` 自适应、`50% ~ 200%` 画布缩放、点阵网格辅助背景。
+* **右侧实时属性面板 (Inspector)**：双向绑定！直接在右侧面板输入精确数值调整宽、高、内边距、字号、圆角或选取色彩。
+* **本地代码直接同步 (Code Sync)**：通过 Rust 原生系统能力突破浏览器沙箱，画布上的可视化修改可直接选择本地源文件（`.tsx` / `.vue` / `.html`）一键写回磁盘！
 
 ---
 
@@ -139,9 +156,28 @@
 5. 选择解压出的 `canvascode` 根目录文件夹即可完成安装！
 6. *(可选)* 如果你想在本地打开的 HTML 文件（如 `file:///...`）中使用，请点击该扩展的【详细信息】，开启 **【允许访问文件网址】**。
 
-### 方式二：本地 0 安装体验测试页
+### 方式二：运行 CanvasCode Studio 独立桌面工作台 🖥️
 
-直接双击打开项目中的 `test-page.html`，无需安装任何扩展即可在浏览器中体验 CanvasCode 完整的 8 手柄拉伸、磁吸吸附、双击改字与 Prompt 导出！
+1. 克隆本项目并确保安装了 Rust 开发环境（`rustc --version`）：
+   ```bash
+   git clone https://github.com/al1830329386-dev/canvascode.git
+   cd canvascode
+   ```
+2. 直接编译并运行桌面端：
+   ```bash
+   # 直接运行已编译的二进制
+   npm run desktop:start
+   # 或通过 Cargo 源码编译运行
+   cargo run --manifest-path src-tauri/Cargo.toml
+   ```
+3. 桌面端启动后：
+   * 在顶部地址栏输入你想调试的前端开发地址（如 `http://localhost:5173`、`http://localhost:3000` 或直接加载演示页）。
+   * 点击顶部设备图标切换 iPhone、iPad 或桌面宽屏分辨率。
+   * 在右侧 Inspector 面板实时双向修改尺寸、字号与色彩，或点击【⚡ 同步到本地文件】直接回写源码！
+
+### 方式三：本地 0 安装体验测试页
+
+直接双击打开项目中的 `test-page.html`，无需安装任何扩展或桌面环境，即可在任意浏览器中秒级体验完整的 8 手柄拉伸、磁吸对齐与 Prompt 导出！
 
 ---
 
@@ -180,7 +216,7 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
 
 ## 🗺️ 未来演进路线 (Roadmap)
 
-- [x] **v1.0.0 (当前版本 - Chrome 扩展)**：
+- [x] **v1.0.0 (Chrome / Edge 扩展)**：
   - [x] PPT / Figma 级 8 控点拉伸与 Shift 宽高比锁定
   - [x] 120 FPS GPU 磁吸拖拽与标尺智能吸附
   - [x] 双击改文字与 Delete / Backspace 快速删除
@@ -188,11 +224,14 @@ CanvasCode 针对现代主流多模态 AI 辅助编程工具进行了专门的 P
   - [x] 键盘 1px / 10px 像素级精准微调
   - [x] 悬浮面板自由拖拽与视口智能防挡避让 (Auto-Dodge)
   - [x] 一键高清网页截图与结构化 Prompt 多模态导出
-- [ ] **v2.0.0 (独立桌面端跨平台应用 - Desktop App)**：
-  - 基于 **Tauri / Rust** 打造超轻量桌面客户端；
-  - **直通本地文件系统**：突破浏览器沙箱限制，在画布上拖拽拉伸的修改，直接通过 Babel / SWC AST 解析写回本地源文件（如 `App.tsx`、`index.vue`），结合 Vite / Turbopack 实现真正的**所见即所得本地代码热更新**！
-- [ ] **主流 IDE 编辑器官方扩展生态**：在编辑器侧边栏内嵌 Webview 画布，修改成果直接打通内嵌终端与 AI 对话窗口。
-- [ ] **多端响应式模拟画布**：一键切换 iPhone 16 Pro、iPad、MacBook 等多种预设分辨率容器进行对比微调。
+- [x] **v1.5.0 (CanvasCode Studio 独立桌面工作台)**：
+  - [x] 基于 **Tauri v2 + Rust** 打造超轻量桌面客户端（仅 ~13MB 独立二进制，极致低内存）；
+  - [x] **多端响应式模拟画布**：一键切换 iPhone 手机、iPad 平板与宽屏桌面视口；
+  - [x] **实时属性检查器 (Inspector)**：右侧属性面板双向绑定，实时敲入像素数值精准调参；
+  - [x] **本地源码直接同步 (Direct Code Sync)**：利用 Rust 系统级 IPC 突破浏览器沙箱限制，修改可一键安全回写到本地磁盘前端源文件！
+- [ ] **v2.0.0 (AST 无损代码热替换与 IDE 插件生态)**：
+  - [ ] 结合 Babel / SWC AST 解析实现组件级 TSX / JSX / Vue 模板无损语义替换；
+  - [ ] 主流 IDE 编辑器侧边栏嵌入式 Webview 扩展生态。
 
 ---
 
@@ -228,6 +267,24 @@ Turn your live browser into an interactive canvas. Drag positions, stretch bound
 | **AI Hallucinations**: Modifies wrong sibling containers or wrecks global CSS | **Pinpoint Targeting**: Automatically captures the unique DOM selector with pixel-accurate CSS diffs |
 | **Context Exhaustion**: 5 rounds of prompting eating up token windows | **One-Shot Resolution**: 1-click export of visual screenshot + standard Tailwind CSS classes |
 | **CSS Mental Overload**: Constantly looking up CSS syntax for simple adjustments | **Zero Cognitive Load**: Real-time pixel HUD indicator, adjust visually like building blocks |
+
+---
+
+### 💻 Dual Form Factor: Browser Extension + Desktop Studio
+
+CanvasCode is designed to seamlessly adapt to your frontend workflow with two dedicated form factors:
+
+#### 1. 🌐 Browser Extension (Chrome / Edge / Brave)
+* **Zero-Setup Portability**: Installs directly into your daily browser.
+* **Inspect Anywhere**: Launch on localhost development servers, staging environments, or live production web apps.
+* **Instant Export**: Make micro-tweaks and export clean visual screenshots + Markdown diffs directly into your AI chat window.
+
+#### 2. 🖥️ CanvasCode Studio (Standalone Desktop App)
+* **Ultra-Lightweight Native Core**: Built with **Tauri v2 & Rust**, delivering a tiny **~13MB** binary with 10x lower memory overhead compared to typical Electron apps.
+* **Multi-Device Responsive Frames**: 1-click preview and tweak across Desktop (`1440×900`), iPad (`820×1180`), iPhone (`393×852`), and fluid responsive layouts.
+* **Canvas Controls**: Dot-grid background, canvas zoom (`50% ~ 200%`), and auto-fitting.
+* **Real-Time Property Inspector**: Bidirectional property panel to directly edit width, height, padding, colors, border radius, and font size with live canvas synchronization.
+* **Direct Local Code Sync**: Powered by native Rust system calls to bypass browser sandboxing—write visual modifications directly back to your local source code (`.tsx`, `.vue`, `.html`) on disk!
 
 ---
 
@@ -308,7 +365,26 @@ Turn your live browser into an interactive canvas. Drag positions, stretch bound
 5. Select the cloned `canvascode` directory to install!
 6. *(Optional)* To test on local HTML files (`file:///...`), click **Details** on the extension and enable **"Allow access to file URLs"**.
 
-#### Option 2: Standalone Sandbox Test Page (Zero Install)
+#### Option 2: CanvasCode Studio Desktop App (Tauri + Rust) 🖥️
+
+1. Ensure Rust toolchain is installed (`rustc --version`):
+   ```bash
+   git clone https://github.com/al1830329386-dev/canvascode.git
+   cd canvascode
+   ```
+2. Run or build the desktop app:
+   ```bash
+   # Run precompiled binary
+   npm run desktop:start
+   # Or build with Cargo
+   cargo run --manifest-path src-tauri/Cargo.toml
+   ```
+3. In CanvasCode Studio:
+   * Enter your local dev server URL (e.g. `http://localhost:5173` or `http://localhost:3000`) into the top address bar.
+   * Switch between responsive device frames (Desktop, iPad, iPhone).
+   * Edit properties visually in the right Inspector panel, or click **【⚡ Sync to Local File】** to write changes directly back to your source code on disk!
+
+#### Option 3: Standalone Sandbox Test Page (Zero Install)
 
 Simply double-click `test-page.html` in your browser. You can immediately test all 8-handle resizing, magnetic snapping, text editing, and prompt export with zero installation required!
 

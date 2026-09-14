@@ -1,0 +1,22 @@
+﻿{
+  "name": "canvascode",
+  "version": "1.0.0",
+  "description": "Visual Micro-Adjustment Tool & Multimodal AI Design Workbench for Web Applications",
+  "private": true,
+  "scripts": {
+    "desktop:start": "src-tauri/target/debug/canvascode-studio.exe",
+    "desktop:build": "cargo build --manifest-path src-tauri/Cargo.toml",
+    "desktop:release": "cargo build --release --manifest-path src-tauri/Cargo.toml",
+    "check": "node -c tweak-engine.js && node -c desktop-ui/app.js"
+  },
+  "keywords": [
+    "visual-tweak",
+    "developer-tools",
+    "tauri",
+    "multimodal-ai",
+    "prompt-engineering",
+    "css-editor"
+  ],
+  "author": "Allen (@al1830329386-dev)",
+  "license": "GPL-3.0"
+}
