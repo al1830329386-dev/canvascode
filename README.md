@@ -9,11 +9,11 @@
 <p>像做 PPT 一样在真实网页上拖拽拉伸微调，一键生成供 AI 编程使用的精准规格书与视觉截图</p>
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge" alt="Version" /></a>
+  <a href="https://github.com/al1830329386-dev/canvascode/releases"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge" alt="Version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=for-the-badge" alt="License: GPL-3.0" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Platform-Chrome%20%7C%20Edge%20%7C%20Brave-purple.svg?style=for-the-badge" alt="Platform" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Dependencies-Zero-orange.svg?style=for-the-badge" alt="Zero Dependencies" /></a>
-  <a href="#"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" /></a>
+  <a href="https://github.com/al1830329386-dev/canvascode/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" /></a>
 </p>
 
 <p align="center">
@@ -220,11 +220,12 @@ When generating web apps using **Cursor, v0, or Bolt**, 90% of the UI is generat
  
 * **自由与开源保障**：您可以免费使用、学习和修改本项目源码。
 * **衍生开源义务 (Copyleft)**：基于本项目或包含本项目代码的任何衍生项目，必须同样以 GPL-3.0 协议完整公开源代码。禁止任何未经授权的闭源转售行为。
-* **原作者与版权归属**：Copyright (C) 2026 **Allen** (and CanvasCode Contributors).
+* **原作者与版权归属**：Copyright (C) 2026 **Allen (@al1830329386-dev)** (and CanvasCode Contributors).
 
 欢迎 Star 🌟、Fork 🍴 和提交 Pull Request！
 
 <p align="center">
-  Made with ❤️ by <strong>Allen</strong> for developers and creators who believe in multimodal AI-assisted design.
+  Made with ❤️ by <strong>Allen (<a href="https://github.com/al1830329386-dev">@al1830329386-dev</a>)</strong> for developers and creators.
 </p>
+
 
