@@ -27,6 +27,10 @@
   <a href="#-english-overview">🌐 English</a>
 </p>
 
+<p align="center">
+  <img src="assets/demo.gif" alt="CanvasCode Live Demo - Visual Micro-Adjustments on Real Webpages" width="880" />
+</p>
+
 </div>
 
 ---
