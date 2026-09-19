@@ -32,7 +32,7 @@
     if (existing.style.display === "none") {
       existing.style.display = "block";
       window.__aiVisualTweakActive = true;
-      if (window.__aiShowToast) window.__aiShowToast("✨ AI 视觉微调已重新唤醒");
+      if (window.__aiShowToast) window.__aiShowToast("微调模式已恢复");
     } else {
       existing.style.display = "none";
       window.__aiVisualTweakActive = false;
@@ -41,6 +41,18 @@
   }
 
   window.__aiVisualTweakActive = true;
+  window.__canvascodeToggle = function() {
+    const el = document.getElementById(HOST_ID);
+    if (!el) return;
+    if (el.style.display === "none") {
+      el.style.display = "block";
+      window.__aiVisualTweakActive = true;
+      if (window.__aiShowToast) window.__aiShowToast("微调模式已恢复");
+    } else {
+      el.style.display = "none";
+      window.__aiVisualTweakActive = false;
+    }
+  };
 
   // Create Host and ShadowRoot
   const host = document.createElement("div");
@@ -69,21 +81,51 @@
     .select-box {
       position: fixed; pointer-events: none; border: 2px solid #3b82f6; background: rgba(59, 130, 246, 0.06);
       z-index: 2147483641; display: none; border-radius: 6px; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+      transition: outline 0.15s ease;
+    }
+    .select-box.pulse {
+      animation: selectBoxPulse 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes selectBoxPulse {
+      0% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(99, 102, 241, 0.65); border-color: #6366f1; }
+      50% { transform: scale(1.01); box-shadow: 0 0 0 12px rgba(99, 102, 241, 0.28); border-color: #818cf8; }
+      100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
     }
 
-    /* Drag Handle */
-    .drag-handle {
-      position: absolute; top: -32px; left: 0; background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px;
-      cursor: grab; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-      user-select: none; pointer-events: auto; white-space: nowrap; transition: transform 0.1s;
+    /* 4 Border Drag Edges (PPT Style: Top, Right, Bottom, Left) */
+    .border-edge {
+      position: absolute; pointer-events: auto; z-index: 2147483642;
+      cursor: move; box-sizing: border-box;
+      transition: background 0.15s ease;
     }
-    .drag-handle:active { cursor: grabbing; transform: scale(0.97); }
-    .drag-snap-pill {
-      background: rgba(255,255,255,0.22); padding: 1px 6px; border-radius: 4px; font-size: 10px;
-      cursor: pointer; transition: background 0.1s;
+    .border-edge.edge-top {
+      top: -6px; left: 0; right: 0; height: 12px;
     }
-    .drag-snap-pill:hover { background: rgba(255,255,255,0.35); }
+    .border-edge.edge-bottom {
+      bottom: -6px; left: 0; right: 0; height: 12px;
+    }
+    .border-edge.edge-left {
+      left: -6px; top: 0; bottom: 0; width: 12px;
+    }
+    .border-edge.edge-right {
+      right: -6px; top: 0; bottom: 0; width: 12px;
+    }
+    .border-edge::after {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 4px;
+      transition: background 0.15s ease;
+      pointer-events: none;
+    }
+    .border-edge:hover::after {
+      background: rgba(59, 130, 246, 0.28);
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.45);
+    }
+    .border-edge:active {
+      cursor: grabbing;
+    }
+    .border-edge:active::after {
+      background: rgba(37, 99, 235, 0.55);
+    }
 
     /* 8 PPT/Figma Style Resize Handles */
     .resize-handle {
@@ -130,75 +172,251 @@
       border-radius: 4px; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
-    /* Floating Toolbar (Glassmorphism) */
+    /* Floating Toolbar (Classic Office / Word Professional Layout) */
     .toolbar {
-      position: fixed; z-index: 2147483646; background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
-      color: #0f172a; border-radius: 16px; padding: 14px 16px;
-      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.18), 0 0 0 1px rgba(226, 232, 240, 0.85);
-      display: none; flex-direction: column; gap: 10px; width: 360px; font-size: 13px;
+      position: fixed; z-index: 2147483646; background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(28px) saturate(190%); -webkit-backdrop-filter: blur(28px) saturate(190%);
+      color: #0f172a; border-radius: 16px; padding: 12px 14px;
+      box-shadow: 0 24px 50px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.9);
+      display: none; flex-direction: column; gap: 7px; width: 396px; font-size: 12px;
       animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     .tb-header {
-      display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(226, 232, 240, 0.7);
-      padding-bottom: 8px; cursor: move; user-select: none; gap: 8px;
+      display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+      padding-bottom: 8px; user-select: none; gap: 8px;
     }
     .tb-title-group { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; overflow: hidden; }
-    .tb-tag-badge { background: #e0e7ff; color: #4338ca; font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
-    .tb-title { font-weight: 700; color: #0f172a; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+    .tb-drag-grip {
+      font-size: 13px; color: #94a3b8; cursor: move; padding: 2px 4px; border-radius: 4px;
+      transition: all 0.1s; user-select: none; flex-shrink: 0;
+    }
+    .tb-drag-grip:hover { color: #475569; background: rgba(0,0,0,0.06); }
+    .tb-comp-name-chip {
+      display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+      padding: 2px 7px; border-radius: 6px; transition: all 0.15s ease;
+      background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.22);
+      max-width: 135px; overflow: hidden;
+    }
+    .tb-comp-name-chip:hover {
+      background: #e0e7ff; border-color: #6366f1; transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
+    }
+    .tb-comp-name-chip:active { transform: scale(0.96); }
+    .tb-tag-badge {
+      background: linear-gradient(135deg, #4f46e5, #6366f1); color: #ffffff;
+      font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; flex-shrink: 0; font-family: monospace;
+    }
+    .tb-title { font-weight: 700; color: #0f172a; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+    .tb-copy-hint {
+      font-size: 9.5px; color: #4338ca; background: #c7d2fe; padding: 1px 4px; border-radius: 4px; font-weight: 700; white-space: nowrap; display: none;
+    }
+    .tb-comp-name-chip:hover .tb-copy-hint { display: inline-block; }
 
-    .tb-actions-top { display: flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap; }
+    .tb-parent-btn {
+      font-size: 10.5px; font-weight: 700; color: #4338ca; background: #e0e7ff;
+      border: 1px solid #c7d2fe; border-radius: 6px; padding: 2.5px 6px;
+      cursor: pointer; transition: all 0.12s; flex-shrink: 0; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 2px;
+    }
+    .tb-parent-btn:hover { background: #c7d2fe; color: #3730a3; transform: translateY(-1px); }
+    .tb-parent-btn:active { transform: scale(0.96); }
+    .tb-parent-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .tb-actions-top { display: flex; align-items: center; gap: 3px; flex-shrink: 0; white-space: nowrap; }
     .tb-icon-btn {
-      cursor: pointer; color: #64748b; font-size: 13px; padding: 3px 6px; border-radius: 6px;
+      cursor: pointer; color: #64748b; font-size: 13px; padding: 3px 5px; border-radius: 6px;
       background: transparent; border: none; transition: all 0.1s; display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
     .tb-icon-btn:hover { color: #0f172a; background: rgba(0,0,0,0.06); }
-    .tb-icon-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .tb-icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-    /* Control Rows */
-    .tb-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .tb-label { font-size: 12px; color: #64748b; font-weight: 600; min-width: 55px; }
-    .tb-group { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
-
-    .tb-btn {
-      background: rgba(248, 250, 252, 0.9); border: 1px solid #e2e8f0; border-radius: 7px; padding: 4px 8px;
-      font-size: 12px; cursor: pointer; color: #334155; transition: all 0.1s; font-weight: 500; user-select: none;
+    /* Word / Office Style Logical Group Box */
+    .word-group-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 6px 9px 7px; display: flex; flex-direction: column; gap: 5px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
     }
-    .tb-btn:hover { background: #e0e7ff; border-color: #c7d2fe; color: #4338ca; }
+    .word-group-header {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10.5px; font-weight: 700; color: #475569;
+      border-bottom: 1px solid #edf2f7; padding-bottom: 3px;
+      user-select: none; letter-spacing: 0.2px;
+    }
+    .word-group-badge {
+      font-size: 9px; font-weight: 600; color: #6366f1; background: #eef2ff;
+      padding: 1px 5px; border-radius: 4px;
+    }
+    .word-control-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 25px;
+    }
+    .word-sublabel {
+      font-size: 10.5px; font-weight: 700; color: #64748b; flex-shrink: 0; min-width: 44px; user-select: none;
+    }
+    .tb-font-size-val {
+      font-size: 11px; font-weight: 700; color: #4338ca; padding: 0 4px; min-width: 32px; text-align: center;
+      user-select: none;
+    }
+
+    /* Arrange Ribbon Grid */
+    .word-arrange-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px;
+    }
+    .word-arrange-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+      padding: 5px 3px; border-radius: 7px; background: #ffffff; border: 1px solid #e2e8f0;
+      color: #334155; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.12s ease;
+      user-select: none; box-shadow: 0 1px 2px rgba(0,0,0,0.03); line-height: 1.15;
+    }
+    .word-arrange-btn .btn-icon { font-size: 13px; line-height: 1; }
+    .word-arrange-btn .btn-subtext { font-size: 9px; color: #94a3b8; font-weight: 500; }
+    .word-arrange-btn:hover {
+      background: #e0e7ff; border-color: #c7d2fe; color: #4338ca; transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(99, 102, 241, 0.18);
+    }
+    .word-arrange-btn:hover .btn-subtext { color: #6366f1; }
+    .word-arrange-btn:active { transform: scale(0.96); }
+    .word-arrange-btn.btn-danger:hover {
+      background: #fee2e2; border-color: #fca5a5; color: #dc2626;
+    }
+    .word-arrange-btn.btn-danger:hover .btn-subtext { color: #ef4444; }
+
+    /* Polished Control Rows */
+    .tb-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; }
+    .tb-label {
+      font-size: 11px; font-weight: 700; color: #64748b; width: 44px;
+      text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0; user-select: none;
+    }
+    .tb-controls { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+
+    /* Button Styles */
+    .tb-btn {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 3.5px 7.5px;
+      font-size: 11.5px; cursor: pointer; color: #334155; transition: all 0.12s ease; font-weight: 500;
+      user-select: none; display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02); white-space: nowrap; flex-shrink: 0; line-height: 1.2;
+    }
+    .tb-btn:hover { background: #e0e7ff; border-color: #c7d2fe; color: #4338ca; transform: translateY(-1px); }
     .tb-btn:active { transform: scale(0.96); }
+    .tb-btn-primary {
+      background: #eef2ff; border-color: #c7d2fe; color: #4f46e5; font-weight: 600;
+    }
+    .tb-btn-primary:hover {
+      background: #4f46e5; border-color: #4f46e5; color: #ffffff; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.28);
+    }
     .tb-btn-danger:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
 
-    .color-swatch { width: 19px; height: 19px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); cursor: pointer; flex-shrink: 0; transition: transform 0.1s; }
-    .color-swatch:hover { transform: scale(1.2); }
-
-    /* Comment textarea */
-    .tb-comment-box {
-      margin-top: 2px; padding-top: 8px; border-top: 1px dashed rgba(226, 232, 240, 0.8); display: flex; flex-direction: column; gap: 5px;
+    /* Stepper Pill Box */
+    .tb-stepper-box {
+      display: inline-flex; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0;
+      border-radius: 7px; overflow: hidden; padding: 2px; gap: 2px; flex-shrink: 0;
     }
-    .tb-comment-title { font-size: 11px; font-weight: 700; color: #475569; display: flex; justify-content: space-between; }
+    .tb-stepper-name {
+      font-size: 10.5px; font-weight: 700; color: #64748b; padding: 0 5px; user-select: none; white-space: nowrap;
+    }
+    .tb-step-btn {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 5px; font-size: 11px;
+      font-weight: 600; color: #334155; padding: 2px 7px; cursor: pointer; transition: all 0.1s;
+      user-select: none; white-space: nowrap; line-height: 1.2;
+    }
+    .tb-step-btn:hover { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
+    .tb-step-btn:active { transform: scale(0.95); }
+
+    /* Palette Row */
+    .color-palette-row {
+      display: flex; align-items: center; justify-content: space-between; flex: 1; min-width: 0;
+    }
+    .color-swatch {
+      width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.12);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.12s ease, box-shadow 0.12s ease; flex-shrink: 0;
+    }
+    .color-swatch:hover { transform: scale(1.22); box-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+    
+    .txt-color-swatch {
+      width: 19px; height: 19px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(0,0,0,0.12);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.12s ease, box-shadow 0.12s ease; flex-shrink: 0;
+    }
+    .txt-color-swatch:hover { transform: scale(1.22); box-shadow: 0 2px 8px rgba(0,0,0,0.22); }
+    
+    .custom-color-picker-wrapper {
+      position: relative; width: 20px; height: 20px; border-radius: 50%; overflow: hidden; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+      border: 1.5px solid rgba(0,0,0,0.15); box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      transition: transform 0.12s; flex-shrink: 0;
+    }
+    .custom-color-picker-wrapper:hover { transform: scale(1.22); box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+    .custom-color-picker-wrapper input[type="color"] {
+      position: absolute; inset: -10px; opacity: 0; width: 40px; height: 40px; cursor: pointer;
+    }
+
+    /* Slider Box */
+    .tb-slider-box { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .tb-range-slider {
+      flex: 1; -webkit-appearance: none; appearance: none; height: 6px;
+      border-radius: 6px; background: #e2e8f0; outline: none; cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .tb-range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: #4f46e5; cursor: pointer;
+      box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4); transition: transform 0.1s ease, background-color 0.1s ease;
+    }
+    .tb-range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); background: #4338ca; }
+    .tb-range-slider::-webkit-slider-thumb:active { transform: scale(1.05); background: #3730a3; }
+    .tb-range-slider::-moz-range-thumb {
+      width: 16px; height: 16px; border: none;
+      border-radius: 50%; background: #4f46e5; cursor: pointer;
+      box-shadow: 0 1px 4px rgba(79, 70, 229, 0.4);
+    }
+    .tb-val-badge {
+      font-size: 11px; font-weight: 700; color: #4338ca; background: #e0e7ff;
+      padding: 2px 7px; border-radius: 6px; min-width: 38px; text-align: center;
+      font-variant-numeric: tabular-nums; user-select: none; flex-shrink: 0;
+    }
+
+    /* Comment Box */
+    .tb-comment-box {
+      margin-top: 2px; padding-top: 7px; border-top: 1px dashed rgba(226, 232, 240, 0.85);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .tb-comment-title {
+      font-size: 11px; font-weight: 700; color: #475569; display: flex; justify-content: space-between; align-items: center;
+    }
+    .tb-comment-sub { font-weight: normal; color: #94a3b8; font-size: 10.5px; }
     .tb-comment-input {
-      width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 7px 10px; font-size: 12px; resize: vertical; min-height: 48px;
-      outline: none; background: #f8fafc; transition: all 0.15s; line-height: 1.4;
+      width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 9px; font-size: 11.5px;
+      resize: vertical; min-height: 44px; outline: none; background: #f8fafc; transition: all 0.15s; line-height: 1.4;
     }
     .tb-comment-input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
 
     /* Bottom Global Dock (Pill & Panel) */
     .dock {
-      position: fixed; bottom: 24px; right: 24px; z-index: 2147483645; display: flex; flex-direction: column;
+      position: fixed; bottom: 46px; right: 20px; z-index: 2147483645; display: flex; flex-direction: column;
       align-items: flex-end; gap: 10px;
     }
 
     .dock-pill {
-      background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 11px 20px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; padding: 10px 18px;
       border-radius: 9999px; font-weight: 600; font-size: 13px; box-shadow: 0 10px 28px rgba(79, 70, 229, 0.4);
       cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      user-select: none;
+      user-select: none; border: 1px solid transparent;
     }
     .dock-pill:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(79, 70, 229, 0.5); }
     .dock-pill:active { transform: translateY(0); }
+    .dock-pill.paused {
+      background: #0f172a; color: #cbd5e1; border: 1px solid #334155; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+    .dock-pill.paused:hover {
+      background: #1e293b; color: #ffffff; border-color: #64748b;
+    }
+    .dock-status-dot {
+      width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+    }
+    .dock-status-dot.active { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    .dock-status-dot.paused { background: #94a3b8; }
     .dock-badge {
       background: #f43f5e; color: #fff; font-size: 11px; padding: 1px 7px; border-radius: 9999px; font-weight: 700;
     }
@@ -311,13 +529,21 @@
   hoverBox.appendChild(hoverTag);
   shadow.appendChild(hoverBox);
 
-  // Selected Box & Drag Handle & 8 PPT-style Resize Handles
+  // Selected Box & Drag Handle & 8 PPT-style Resize Handles & 4 Border Drag Edges
   const selectBox = document.createElement("div");
   selectBox.className = "select-box";
-  const dragHandle = document.createElement("div");
-  dragHandle.className = "drag-handle";
-  dragHandle.innerHTML = `<span>✥ 拖拽 (吸附对齐)</span>`;
-  selectBox.appendChild(dragHandle);
+
+  // 4 PPT-style Border Drag Edges (Top, Right, Bottom, Left)
+  const borderEdgeDirs = ["top", "right", "bottom", "left"];
+  const borderEdges = [];
+  borderEdgeDirs.forEach(edgeDir => {
+    const edge = document.createElement("div");
+    edge.className = `border-edge edge-${edgeDir}`;
+    edge.dataset.edge = edgeDir;
+    edge.title = "按住边框直接拖拽平移 (PPT 模式 · 支持磁吸对齐)";
+    selectBox.appendChild(edge);
+    borderEdges.push(edge);
+  });
 
   const resizeHandleDirs = ["nw", "n", "ne", "e", "se", "s", "sw", "w"];
   resizeHandleDirs.forEach(dir => {
@@ -361,30 +587,41 @@
   dock.innerHTML = `
     <div class="dock-panel" id="dock-panel">
       <div class="panel-header">
-        <h3>✨ CanvasCode 视觉规格书</h3>
+        <h3>修改记录与规格</h3>
         <div style="display:flex;gap:6px;align-items:center;">
-          <button class="tb-icon-btn" id="dock-undo" title="撤销 (Ctrl+Z)">↩️</button>
-          <button class="tb-icon-btn" id="dock-redo" title="重做 (Ctrl+Y)">↪️</button>
-          <button class="tb-icon-btn" id="panel-close">✕</button>
+          <button class="tb-icon-btn" id="dock-undo" title="撤销 (Ctrl+Z)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+          </button>
+          <button class="tb-icon-btn" id="dock-redo" title="重做 (Ctrl+Y)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+          </button>
+          <button class="tb-icon-btn" id="panel-close" title="收起面板">✕</button>
         </div>
+      </div>
+      <div class="panel-settings-bar" style="padding: 9px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; font-weight: 600; color: #475569;">磁吸对齐</span>
+        <button class="tb-toggle-btn active" id="dock-toggle-snap" title="拖拽时靠近周围元素自动吸附 (快捷键: S)">
+          已开启
+        </button>
       </div>
       <div class="panel-list" id="panel-list">
         <div class="empty-state">
-          鼠标点击页面任意组件开始微调<br/>
-          <span style="font-size:11px;color:#cbd5e1">按住拖拽柄吸附 · 8个手柄自由拉伸尺寸 · 方向键微调</span>
+          点击页面组件开始调整<br/>
+          <span style="font-size:11px;color:#94a3b8">四周任意边框拖拽 · 8个手柄拉伸尺寸 · 方向键像素微调</span>
         </div>
       </div>
       <div class="panel-actions">
-        <button class="btn-primary" id="btn-copy-prompt">📋 一键复制 AI 修改指令 (Prompt)</button>
-        <button class="btn-primary" style="background: linear-gradient(135deg, #0284c7, #2563eb);" id="btn-screenshot-all">📸 一键截图 + 图文一体导出</button>
+        <button class="btn-primary" id="btn-copy-prompt">复制修改 Prompt</button>
+        <button class="btn-primary" style="background: #0284c7;" id="btn-screenshot-all">导出截图与 Prompt</button>
         <div style="display: flex; gap: 8px;">
-          <button class="btn-sub" style="flex:1" id="btn-reset-all">🔄 全部还原</button>
-          <button class="btn-sub" style="flex:1" id="btn-exit">❌ 退出模式</button>
+          <button class="btn-sub" style="flex:1" id="btn-reset-all">全部重置</button>
+          <button class="btn-sub" style="flex:1" id="btn-exit" title="暂停微调模式，恢复正常浏览">暂停微调</button>
         </div>
       </div>
     </div>
-    <div class="dock-pill" id="dock-pill">
-      <span>✨ CanvasCode</span>
+    <div class="dock-pill" id="dock-pill" title="微调模式状态开关：点击可切换开启/暂停或展开面板">
+      <span class="dock-status-dot active"></span>
+      <span id="dock-status-text">CanvasCode (运行中)</span>
       <span class="dock-badge" id="dock-count" style="display:none">0</span>
     </div>
   `;
@@ -396,26 +633,26 @@
   modalBackdrop.innerHTML = `
     <div class="modal-card">
       <div class="modal-header">
-        <h3>📸 视觉改动截图与 Prompt 打包</h3>
+        <h3>导出修改记录与截图</h3>
         <span class="tb-close" id="modal-close">✕</span>
       </div>
       <div class="modal-body">
         <div style="font-size:12px;color:#64748b;line-height:1.5;">
-          ✨ 已成功将页面当前调整后的视觉状态截图！你可以直接复制图片或保存文件，连同下方 Prompt 发送给 <strong>AI 编程助手</strong>，实现多模态精准编程！
+          页面当前修改状态已完成截图。可复制图像或下载，结合下方 Prompt 指令更新代码。
         </div>
         <div class="img-preview-box">
           <img id="modal-img-preview" src="" alt="Screenshot" />
         </div>
-        <div style="font-size:11px;font-weight:700;color:#475569;">📋 结构化修改指令 (Prompt 摘要)：</div>
+        <div style="font-size:11px;font-weight:700;color:#475569;">Prompt 摘要：</div>
         <div class="prompt-preview-box" id="modal-prompt-preview"></div>
       </div>
       <div class="modal-footer">
         <div style="display:flex;gap:6px;">
-          <button class="btn-primary" style="padding:7px 12px;font-size:12px;" id="modal-copy-img">📋 复制图片</button>
-          <button class="btn-sub" id="modal-download-img">💾 下载图片</button>
-          <button class="btn-sub" id="modal-copy-text">📋 复制文字 Prompt</button>
+          <button class="btn-primary" style="padding:7px 14px;font-size:12px;" id="modal-copy-img">复制图片</button>
+          <button class="btn-sub" id="modal-download-img">下载图片</button>
+          <button class="btn-sub" id="modal-copy-text">复制 Prompt</button>
         </div>
-        <button class="btn-sub" id="modal-close-btn">完成</button>
+        <button class="btn-sub" id="modal-close-btn">关闭</button>
       </div>
     </div>
   `;
@@ -442,29 +679,23 @@
   const changes = new Map(); // el -> { selector, text, existingClasses, mods: {}, comment: "", dragOffset: {x,y} }
 
   function updateSnapUI() {
-    if (dragHandle) {
-      dragHandle.innerHTML = `<span>✥ 拖拽</span> <span class="drag-snap-pill" id="drag-snap-pill" title="点击切换磁吸对齐">${isSnapEnabled ? '🧲吸附开' : '🕊️自由'}</span>`;
-      const pill = dragHandle.querySelector("#drag-snap-pill");
-      if (pill) {
-        pill.onmousedown = (e) => e.stopPropagation();
-        pill.onclick = (e) => {
-          e.stopPropagation();
-          toggleSnap();
-        };
-      }
+    const dockSnapBtn = shadow.getElementById("dock-toggle-snap");
+    if (dockSnapBtn) {
+      dockSnapBtn.className = `tb-toggle-btn ${isSnapEnabled ? 'active' : ''}`;
+      dockSnapBtn.textContent = isSnapEnabled ? `已开启` : `已关闭`;
+      dockSnapBtn.style.color = isSnapEnabled ? '#4338ca' : '#64748b';
+      dockSnapBtn.style.background = isSnapEnabled ? '#e0e7ff' : '#f1f5f9';
+      dockSnapBtn.style.borderColor = isSnapEnabled ? '#a5b4fc' : '#cbd5e1';
     }
-    const tbBtn = shadow.getElementById("tb-toggle-snap");
-    if (tbBtn) {
-      tbBtn.className = `tb-toggle-btn ${isSnapEnabled ? 'active' : ''}`;
-      tbBtn.innerHTML = isSnapEnabled ? `🧲 磁吸开` : `🕊️ 自由拖`;
-    }
+    window.dispatchEvent(new CustomEvent("canvascode:snapChanged", { detail: { isSnapEnabled } }));
   }
 
   function toggleSnap() {
     isSnapEnabled = !isSnapEnabled;
     updateSnapUI();
-    showToast(isSnapEnabled ? "🧲 磁吸吸附已开启 (靠近元素自动对齐)" : "🕊️ 自由拖拽已开启 (磁吸辅助线已关闭)");
+    showToast(isSnapEnabled ? "已开启磁吸对齐" : "已关闭磁吸对齐");
   }
+  window.__canvascodeToggleSnap = toggleSnap;
 
   // --- UNDO / REDO HISTORY SYSTEM ---
   const undoStack = [];
@@ -478,7 +709,7 @@
 
   function undo() {
     if (undoStack.length === 0) {
-      showToast("ℹ️ 没有可以撤销的操作了");
+      showToast("无撤销历史");
       return;
     }
     const action = undoStack.pop();
@@ -488,12 +719,12 @@
     updateHistoryButtons();
     updateDock();
     updateSelection();
-    showToast(`↩️ 已撤销: ${action.label || '操作'}`);
+    showToast(`已撤销: ${action.label || '操作'}`);
   }
 
   function redo() {
     if (redoStack.length === 0) {
-      showToast("ℹ️ 没有可以重做的操作了");
+      showToast("无重做历史");
       return;
     }
     const action = redoStack.pop();
@@ -503,7 +734,7 @@
     updateHistoryButtons();
     updateDock();
     updateSelection();
-    showToast(`↪️ 已重做: ${action.label || '操作'}`);
+    showToast(`已重做: ${action.label || '操作'}`);
   }
 
   function applyAction(action, isUndo) {
@@ -512,7 +743,11 @@
 
     if (action.type === "style") {
       const val = isUndo ? action.prevVal : action.nextVal;
-      el.style[action.prop] = val || "";
+      if (action.prop === "innerText") {
+        el.innerText = val || "";
+      } else {
+        el.style[action.prop] = val || "";
+      }
       const entry = initChangeEntry(el);
       if (isUndo && !action.prevVal) {
         delete entry.mods[action.prop];
@@ -524,6 +759,20 @@
           label: action.label,
           tailwind: action.tailwind
         };
+      }
+      if (selectedEl === el && action.prop === "borderRadius" && toolbar) {
+        const rSlider = toolbar.querySelector("#r-slider");
+        const rValBadge = toolbar.querySelector("#r-val-badge");
+        if (rSlider && rValBadge) {
+          const curR = parseInt(val) || 0;
+          if (val === "9999px" || curR >= 999) {
+            rSlider.value = 64;
+            rValBadge.textContent = "全圆";
+          } else {
+            rSlider.value = Math.min(64, curR);
+            rValBadge.textContent = `${curR}px`;
+          }
+        }
       }
     } else if (action.type === "drag") {
       const t = isUndo ? action.prevTranslate : action.nextTranslate;
@@ -581,6 +830,25 @@
           };
         }
       }
+    } else if (action.type === "order") {
+      const targetSibling = isUndo ? action.prevNextSibling : action.nextNextSibling;
+      if (action.parent && action.el) {
+        if (targetSibling && targetSibling.parentElement === action.parent) {
+          action.parent.insertBefore(action.el, targetSibling);
+        } else {
+          action.parent.appendChild(action.el);
+        }
+      }
+      triggerOrderPulse();
+    }
+  }
+
+  function triggerOrderPulse() {
+    if (selectBox) {
+      selectBox.classList.remove("pulse");
+      void selectBox.offsetWidth;
+      selectBox.classList.add("pulse");
+      setTimeout(() => selectBox.classList.remove("pulse"), 500);
     }
   }
 
@@ -594,16 +862,34 @@
     const tbRedo = shadow.getElementById("tb-redo");
     if (tbUndo) tbUndo.disabled = undoStack.length === 0;
     if (tbRedo) tbRedo.disabled = redoStack.length === 0;
+
+    try {
+      window.dispatchEvent(new CustomEvent("canvascode:historyChanged", {
+        detail: { canUndo: undoStack.length > 0, canRedo: redoStack.length > 0 }
+      }));
+    } catch (e) {}
   }
+
+  window.__canvascodeUndo = undo;
+  window.__canvascodeRedo = redo;
 
   // --- TAILWIND MAPPER ---
   const TAILWIND_COLOR_MAP = {
     "#10b981": { name: "清新绿", bg: "bg-emerald-500", text: "text-emerald-500" },
+    "#059669": { name: "翡翠绿", bg: "bg-emerald-600", text: "text-emerald-600" },
     "#3b82f6": { name: "科技蓝", bg: "bg-blue-500", text: "text-blue-500" },
+    "#2563eb": { name: "品牌蓝", bg: "bg-blue-600", text: "text-blue-600" },
     "#8b5cf6": { name: "优雅紫", bg: "bg-purple-500", text: "text-purple-500" },
+    "#7c3aed": { name: "高贵紫", bg: "bg-violet-600", text: "text-violet-600" },
     "#f43f5e": { name: "珊瑚红", bg: "bg-rose-500", text: "text-rose-500" },
+    "#dc2626": { name: "正红", bg: "bg-red-600", text: "text-red-600" },
+    "#f59e0b": { name: "暖阳橙", bg: "bg-amber-500", text: "text-amber-500" },
+    "#d97706": { name: "活力橙", bg: "bg-amber-600", text: "text-amber-600" },
     "#0f172a": { name: "暗黑", bg: "bg-slate-900", text: "text-slate-900" },
+    "#475569": { name: "中灰", bg: "bg-slate-600", text: "text-slate-600" },
+    "#64748b": { name: "次级灰", bg: "bg-slate-500", text: "text-slate-500" },
     "#ffffff": { name: "纯白", bg: "bg-white", text: "text-white" },
+    "#f8fafc": { name: "浅灰", bg: "bg-slate-50", text: "text-slate-50" },
     "transparent": { name: "透明", bg: "bg-transparent", text: "" }
   };
 
@@ -669,8 +955,10 @@
   }
 
   function recordChange(el, prop, val, label) {
-    const prevVal = el.style[prop];
-    const tw = getTailwindHint(prop, val);
+    const isText = prop === "innerText";
+    const prevVal = isText ? (el.innerText || el.textContent || "") : el.style[prop];
+    const tw = isText ? "" : getTailwindHint(prop, val);
+    const originalVal = isText ? prevVal : window.getComputedStyle(el)[prop];
 
     pushHistory({
       type: "style",
@@ -678,7 +966,7 @@
       prop,
       prevVal,
       nextVal: val,
-      original: window.getComputedStyle(el)[prop],
+      original: originalVal,
       label: label || prop,
       tailwind: tw
     });
@@ -686,7 +974,7 @@
     const entry = initChangeEntry(el);
     if (!entry.mods[prop]) {
       entry.mods[prop] = {
-        original: window.getComputedStyle(el)[prop],
+        original: originalVal,
         current: val,
         label: label || prop,
         tailwind: tw
@@ -695,7 +983,11 @@
       entry.mods[prop].current = val;
       entry.mods[prop].tailwind = tw;
     }
-    el.style[prop] = val;
+    if (isText) {
+      el.innerText = val;
+    } else {
+      el.style[prop] = val;
+    }
     updateSelection();
     updateDock();
   }
@@ -720,6 +1012,7 @@
   function recordDragPosition(el, dx, dy, snapNote) {
     const entry = initChangeEntry(el);
     const prevT = entry.dragOffset ? { ...entry.dragOffset } : { dx: 0, dy: 0, snapNote: "" };
+    if (prevT.dx === dx && prevT.dy === dy) return;
 
     pushHistory({
       type: "drag",
@@ -805,10 +1098,10 @@
       let details = "";
       for (const [k, v] of Object.entries(data.mods)) {
         const twBadge = v.tailwind ? `<span class="diff-tw">${v.tailwind}</span>` : "";
-        const snapBadge = v.snapNote ? `<div style="color:#f43f5e;font-size:10px;font-weight:600;margin-top:2px;">🧲 ${v.snapNote}</div>` : "";
+        const snapBadge = v.snapNote ? `<div style="color:#f43f5e;font-size:10px;font-weight:600;margin-top:2px;">[对齐] ${v.snapNote}</div>` : "";
         details += `<div>• ${v.label}: <span class="diff-prop">${v.current}</span> ${twBadge} ${snapBadge}</div>`;
       }
-      const commentHtml = data.comment ? `<div class="diff-comment">💬 批注: ${data.comment}</div>` : "";
+      const commentHtml = data.comment ? `<div class="diff-comment">批注: ${data.comment}</div>` : "";
 
       item.innerHTML = `
         <div class="diff-item-title">
@@ -854,7 +1147,7 @@
     if (e.target.closest(".tb-header")) {
       customToolbarPos = null;
       updateSelection();
-      showToast("🧭 工具栏已恢复自动防挡跟随");
+      showToast("工具栏已恢复自动跟随");
     }
   });
 
@@ -980,7 +1273,7 @@
 
   selectBox.addEventListener("mousedown", (e) => {
     const handle = e.target.closest(".resize-handle");
-    if (!handle || !selectedEl) return;
+    if (handle && selectedEl) {
 
     e.preventDefault();
     e.stopPropagation();
@@ -1018,8 +1311,16 @@
     currentResizeTranslate = { ...initialResizeTranslate };
 
     toolbar.style.display = "none";
-    showToast("📐 按住拖拽拉伸尺寸 (按住 Shift 可等比缩放)");
-  });
+    showToast("按住手柄调整尺寸（Shift 等比缩放）");
+    return;
+  }
+
+  const edge = e.target.closest(".border-edge");
+  if (edge && selectedEl) {
+    startDragMove(e);
+    return;
+  }
+});
 
   function handleResizeMove(e) {
     if (!isResizing || !selectedEl) return;
@@ -1083,7 +1384,7 @@
     selectBox.style.height = rect.height + "px";
 
     // HUD Indicator
-    tuneHud.textContent = `📐 尺寸: ${newW} × ${newH} px (w-[${newW}px] h-[${newH}px])${e.shiftKey ? ' [等比锁定]' : ''}`;
+    tuneHud.textContent = `尺寸: ${newW} × ${newH} px${e.shiftKey ? ' [等比锁定]' : ''}`;
     tuneHud.style.display = "block";
   }
 
@@ -1104,7 +1405,7 @@
         initialResizeTranslate
       );
       updateSelection();
-      showToast(`📐 尺寸拉伸完成: ${currentResizeSize.w} × ${currentResizeSize.h} px`);
+      showToast(`尺寸: ${currentResizeSize.w} × ${currentResizeSize.h} px`);
     }
 
     setTimeout(() => {
@@ -1112,7 +1413,7 @@
     }, 1500);
   }
 
-  dragHandle.addEventListener("mousedown", (e) => {
+  function startDragMove(e) {
     if (!selectedEl) return;
     e.preventDefault();
     e.stopPropagation();
@@ -1138,8 +1439,13 @@
     toolbar.style.display = "none";
     selectedEl.style.willChange = "transform";
     selectBox.style.willChange = "transform";
+    document.body.style.cursor = "grabbing";
 
-    showToast(isSnapEnabled ? "🧲 磁吸吸附中 (按住Alt可临时自由平移)" : "🕊️ 自由拖拽中 (已关闭磁吸对齐)");
+    showToast(isSnapEnabled ? "拖拽平移中（Alt 自由移动）" : "自由拖拽平移中");
+  }
+
+  borderEdges.forEach(edge => {
+    edge.addEventListener("mousedown", startDragMove);
   });
 
   function renderDragFrame() {
@@ -1271,6 +1577,7 @@
   }, { passive: true });
 
   window.addEventListener("mouseup", () => {
+    document.body.style.cursor = "";
     if (isResizing) {
       finishResize();
     }
@@ -1294,13 +1601,14 @@
 
       recordDragPosition(selectedEl, currentTranslate.x, currentTranslate.y, selectedEl.__activeSnapNote);
       updateSelection();
-      showToast(`🎯 位置已锁定 (${currentTranslate.x}px, ${currentTranslate.y}px)`);
+      showToast(`已移动至 (${currentTranslate.x}px, ${currentTranslate.y}px)`);
     }
   });
 
   // --- KEYBOARD ARROW KEYS FINE-TUNING (1px / Shift+10px) & SHORTCUTS (Ctrl+Z / Ctrl+Y) ---
   window.addEventListener("keydown", (e) => {
     if (!window.__aiVisualTweakActive) return;
+    if (inlineEditingEl) return; // Allow normal typing in inline text edit mode
 
     // Check if user is typing in an input or textarea
     const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : "";
@@ -1354,10 +1662,10 @@
       if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();
         const target = selectedEl;
-        recordChange(target, "display", "none", "删除/隐藏该元素(hidden)");
+        recordChange(target, "display", "none", "隐藏该组件(hidden)");
         selectedEl = null;
         updateSelection();
-        showToast("🗑️ 已删除/隐藏该组件 (按 Ctrl+Z 可撤销)");
+        showToast("已隐藏组件 (Ctrl+Z 可撤销)");
         return;
       }
     }
@@ -1387,7 +1695,7 @@
         updateSelection();
 
         // Show HUD
-        tuneHud.textContent = `📍 微调坐标: X:${curX > 0 ? '+' : ''}${curX}px, Y:${curY > 0 ? '+' : ''}${curY}px (步长 ${step}px)`;
+        tuneHud.textContent = `坐标: X:${curX > 0 ? '+' : ''}${curX}px, Y:${curY > 0 ? '+' : ''}${curY}px (${step}px)`;
         tuneHud.style.display = "block";
         clearTimeout(tuneHud._timer);
         tuneHud._timer = setTimeout(() => { tuneHud.style.display = "none"; }, 1500);
@@ -1395,114 +1703,408 @@
     }
   });
 
-  // --- TOOLBAR RENDERING (Polished macOS Glass Style) ---
+  // --- LAYER Z-INDEX STACKING (100% Keeps Position In Place / 保持在原处不动) ---
+  function moveElementZIndex(el, direction) {
+    if (!el || !el.isConnected) return;
+
+    const comp = window.getComputedStyle(el);
+    const isStatic = comp.position === "static";
+
+    // In standard CSS, z-index only takes effect on positioned elements (relative/absolute/sticky/fixed)
+    if (isStatic) {
+      recordChange(el, "position", "relative", "相对定位 (保持原位启用图层)");
+    }
+
+    let curZ = parseInt(comp.zIndex);
+    if (isNaN(curZ)) curZ = 0;
+
+    // Scan sibling elements to calculate smart z-index step
+    let siblings = [];
+    if (el.parentElement) {
+      siblings = Array.from(el.parentElement.children).filter(c => c !== el);
+    }
+    let maxSiblingZ = 0;
+    let minSiblingZ = 0;
+    siblings.forEach(s => {
+      const sz = parseInt(window.getComputedStyle(s).zIndex);
+      if (!isNaN(sz)) {
+        if (sz > maxSiblingZ) maxSiblingZ = sz;
+        if (sz < minSiblingZ) minSiblingZ = sz;
+      }
+    });
+
+    let nextZ;
+    if (direction === 1) {
+      // Bring Forward (上移一层 / 浮于上方)
+      nextZ = curZ <= maxSiblingZ ? maxSiblingZ + 1 : curZ + 1;
+      if (nextZ <= 0) nextZ = 1;
+    } else {
+      // Send Backward (下移一层 / 沉于下方)
+      nextZ = curZ > minSiblingZ ? Math.min(curZ - 1, minSiblingZ) : curZ - 1;
+      if (curZ === 0) nextZ = -1;
+    }
+
+    recordChange(el, "zIndex", `${nextZ}`, direction === 1 ? `图层上移 (z-index: ${nextZ})` : `图层下移 (z-index: ${nextZ})`);
+    el.style.zIndex = nextZ;
+
+    triggerOrderPulse();
+    updateSelection();
+    updateDock();
+
+    if (direction === 1) {
+      showToast(`图层上移 (z-index: ${nextZ})`);
+    } else {
+      showToast(`图层下移 (z-index: ${nextZ})`);
+    }
+  }
+
+  // --- DOM ELEMENT REORDERING (With Smart Parent Bubbling & Animation) ---
+  function moveElementOrder(el, direction) {
+    if (!el || !el.isConnected) return;
+
+    let target = el;
+    let moved = false;
+    let oldParent = target.parentElement;
+    let oldNextSibling = target.nextElementSibling;
+
+    if (direction === -1) {
+      // Move Previous / Bring Forward
+      if (target.previousElementSibling) {
+        target.previousElementSibling.before(target);
+        moved = true;
+      } else if (oldParent && oldParent !== document.body && oldParent !== document.documentElement && oldParent.previousElementSibling) {
+        // Smart bubble to parent container if target has no previous sibling
+        oldParent.previousElementSibling.before(oldParent);
+        target = oldParent;
+        selectedEl = target;
+        renderToolbar(target);
+        moved = true;
+        showToast(`已选中并前移父级容器: <${target.tagName.toLowerCase()}>`);
+      }
+    } else {
+      // Move Next / Send Backward
+      if (target.nextElementSibling) {
+        target.nextElementSibling.after(target);
+        moved = true;
+      } else if (oldParent && oldParent !== document.body && oldParent !== document.documentElement && oldParent.nextElementSibling) {
+        // Smart bubble to parent container if target has no next sibling
+        oldParent.nextElementSibling.after(oldParent);
+        target = oldParent;
+        selectedEl = target;
+        renderToolbar(target);
+        moved = true;
+        showToast(`已选中并后移父级容器: <${target.tagName.toLowerCase()}>`);
+      }
+    }
+
+    if (moved) {
+      const newNextSibling = target.nextElementSibling;
+      const newParent = target.parentElement;
+
+      // Push history action
+      pushHistory({
+        type: "order",
+        el: target,
+        parent: newParent,
+        prevNextSibling: oldNextSibling,
+        nextNextSibling: newNextSibling,
+        label: direction === -1 ? "前移一层" : "后移一层"
+      });
+
+      // Record to changes map
+      const entry = initChangeEntry(target);
+      entry.mods["order"] = {
+        original: "默认排列位置",
+        current: direction === -1 ? "向前调换位置 (DOM 节点前移)" : "向后调换位置 (DOM 节点后移)",
+        label: direction === -1 ? "组件顺序向前移动" : "组件顺序向后移动",
+        tailwind: "order / DOM 顺序重排"
+      };
+
+      triggerOrderPulse();
+      updateSelection();
+      updateDock();
+
+      if (target === el) {
+        showToast(direction === -1 ? "已向前移动组件顺序" : "已向后移动组件顺序");
+      }
+    } else {
+      showToast("已处于同级边缘，无法继续移动");
+    }
+  }
+
+  // --- TOOLBAR RENDERING (Classic Office / Word Ribbon Layout) ---
   function renderToolbar(el) {
     const summary = getElementSummary(el);
     const style = window.getComputedStyle(el);
     const entry = initChangeEntry(el);
+    const currentFontSize = parseInt(style.fontSize) || 14;
+    const isBold = style.fontWeight === "bold" || parseInt(style.fontWeight) >= 700;
 
     toolbar.innerHTML = `
+      <!-- Toolbar Header -->
       <div class="tb-header" title="按住可拖动悬浮窗 · 双击恢复自动跟随">
         <div class="tb-title-group">
-          <span style="font-size:12px;color:#94a3b8;cursor:move;" title="按住拖拽">⠿</span>
-          <span class="tb-tag-badge">&lt;${el.tagName.toLowerCase()}&gt;</span>
-          <div class="tb-title">${summary.selector} ${summary.text}</div>
+          <span class="tb-drag-grip" title="按住拖拽悬浮窗位置">⠿</span>
+          <div class="tb-comp-name-chip" id="tb-copy-comp-name" title="点击复制选择器 (${summary.selector})">
+            <span class="tb-tag-badge">&lt;${el.tagName.toLowerCase()}&gt;</span>
+            <div class="tb-title">${summary.selector}</div>
+            <span class="tb-copy-hint">复制</span>
+          </div>
+          <button class="tb-parent-btn" id="tb-select-parent" title="向上选中外层父容器">↑ 父级</button>
+          <button class="tb-parent-btn" id="tb-select-child" title="向下选中内部子元素">↓ 子级</button>
         </div>
         <div class="tb-actions-top">
-          <button class="tb-toggle-btn ${isSnapEnabled ? 'active' : ''}" id="tb-toggle-snap" title="点击切换磁吸吸附 (快捷键: 按 S 键，或拖拽时按住 Alt 临时自由移动)">
-            ${isSnapEnabled ? '🧲 磁吸开' : '🕊️ 自由拖'}
+          <button class="tb-icon-btn" id="tb-undo" title="撤销 (Ctrl+Z)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
           </button>
-          <button class="tb-icon-btn" id="tb-undo" title="撤销 (Ctrl+Z)">↩️</button>
-          <button class="tb-icon-btn" id="tb-redo" title="重做 (Ctrl+Y)">↪️</button>
+          <button class="tb-icon-btn" id="tb-redo" title="重做 (Ctrl+Y)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+          </button>
           <button class="tb-icon-btn" id="tb-close" title="取消选择 (Esc)">✕</button>
         </div>
       </div>
 
-      <!-- 尺寸 -->
-      <div class="tb-row">
-        <span class="tb-label">尺寸</span>
-        <div class="tb-group">
-          <button class="tb-btn" id="w-minus">-20px</button>
-          <button class="tb-btn" id="w-plus">+20px</button>
-          <button class="tb-btn" id="w-full">100%全宽</button>
-          <button class="tb-btn" id="h-plus">高+10</button>
-          <button class="tb-btn" id="sz-auto">自适应</button>
+      <!-- 1. 文字样式 -->
+      <div class="word-group-box">
+        <div class="word-group-header">
+          <span>文字样式</span>
+          <span class="word-group-badge">Font</span>
+        </div>
+        <div class="word-control-row">
+          <div class="tb-stepper-box">
+            <span class="tb-stepper-name">字号</span>
+            <button class="tb-step-btn" id="txt-smaller" title="字号减小 2px">A⁻</button>
+            <span class="tb-font-size-val" id="txt-size-val">${currentFontSize}px</span>
+            <button class="tb-step-btn" id="txt-bigger" title="字号增大 2px">A⁺</button>
+          </div>
+          <button class="tb-btn ${isBold ? 'tb-btn-primary' : ''}" id="txt-bold" title="切换加粗 (font-bold)" style="font-weight:700; padding:3px 10px;">加粗</button>
+        </div>
+        <div class="word-control-row">
+          <span class="word-sublabel">文字颜色</span>
+          <div class="txt-color-palette" style="display:flex; align-items:center; gap:5px; flex:1; justify-content:flex-end;">
+            <div class="txt-color-swatch" style="background:#0f172a;" title="深黑 (slate-900)" data-color="#0f172a"></div>
+            <div class="txt-color-swatch" style="background:#475569;" title="中灰 (slate-600)" data-color="#475569"></div>
+            <div class="txt-color-swatch" style="background:#ffffff; border:1.5px solid #cbd5e1;" title="纯白 (white)" data-color="#ffffff"></div>
+            <div class="txt-color-swatch" style="background:#2563eb;" title="蓝色 (blue-600)" data-color="#2563eb"></div>
+            <div class="txt-color-swatch" style="background:#059669;" title="绿色 (emerald-600)" data-color="#059669"></div>
+            <div class="txt-color-swatch" style="background:#7c3aed;" title="紫色 (violet-600)" data-color="#7c3aed"></div>
+            <div class="txt-color-swatch" style="background:#dc2626;" title="红色 (rose-600)" data-color="#dc2626"></div>
+            <div class="txt-color-swatch" style="background:#d97706;" title="橙色 (amber-600)" data-color="#d97706"></div>
+            <div class="custom-color-picker-wrapper" title="自定义文字颜色">
+              <input type="color" id="txt-color-picker" value="#0f172a" />
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 间距 -->
-      <div class="tb-row">
-        <span class="tb-label">间距</span>
-        <div class="tb-group">
-          <button class="tb-btn" id="m-plus">外边距+ (mt)</button>
-          <button class="tb-btn" id="m-minus">外边距-</button>
-          <button class="tb-btn" id="p-plus">内边距+ (px/py)</button>
-          <button class="tb-btn" id="p-minus">内边距-</button>
+      <!-- 2. 外观与背景 -->
+      <div class="word-group-box">
+        <div class="word-group-header">
+          <span>外观与背景</span>
+          <span class="word-group-badge">Appearance</span>
+        </div>
+        <div class="word-control-row">
+          <span class="word-sublabel">背景底色</span>
+          <div class="color-palette-row" style="display:flex; align-items:center; gap:5px; flex:1; justify-content:flex-end;">
+            <div class="color-swatch" style="background:#ffffff; border:1.5px solid #cbd5e1;" title="纯白 (white)" data-color="#ffffff"></div>
+            <div class="color-swatch" style="background:#f8fafc; border:1.5px solid #cbd5e1;" title="浅灰 (slate-50)" data-color="#f8fafc"></div>
+            <div class="color-swatch" style="background:#0f172a;" title="深色 (slate-900)" data-color="#0f172a"></div>
+            <div class="color-swatch" style="background:#3b82f6;" title="蓝色 (blue-500)" data-color="#3b82f6"></div>
+            <div class="color-swatch" style="background:#10b981;" title="绿色 (emerald-500)" data-color="#10b981"></div>
+            <div class="color-swatch" style="background:#8b5cf6;" title="紫色 (purple-500)" data-color="#8b5cf6"></div>
+            <div class="color-swatch" style="background:#f43f5e;" title="红色 (rose-500)" data-color="#f43f5e"></div>
+            <div class="color-swatch" style="background:#f59e0b;" title="橙色 (amber-500)" data-color="#f59e0b"></div>
+            <div class="custom-color-picker-wrapper" title="自定义背景颜色">
+              <input type="color" id="bg-color-picker" value="#3b82f6" />
+            </div>
+          </div>
+        </div>
+        <div class="word-control-row">
+          <span class="word-sublabel">圆角弧度</span>
+          <div class="tb-controls tb-slider-box">
+            <input type="range" class="tb-range-slider" id="r-slider" min="0" max="64" value="0" step="1" title="滑动调整圆角弧度 (0~64px)" />
+            <span class="tb-val-badge" id="r-val-badge">0px</span>
+            <button class="tb-btn" id="r-pill" style="padding:2.5px 7px;font-size:11px;color:#4f46e5;font-weight:700;" title="设为全圆角胶囊形态 (rounded-full)">全圆</button>
+          </div>
         </div>
       </div>
 
-      <!-- 背景颜色 -->
-      <div class="tb-row">
-        <span class="tb-label">背景色</span>
-        <div class="tb-group" style="gap:6px;">
-          <div class="color-swatch" style="background:#10b981" title="清新绿 (emerald-500)" data-color="#10b981"></div>
-          <div class="color-swatch" style="background:#3b82f6" title="科技蓝 (blue-500)" data-color="#3b82f6"></div>
-          <div class="color-swatch" style="background:#8b5cf6" title="优雅紫 (purple-500)" data-color="#8b5cf6"></div>
-          <div class="color-swatch" style="background:#f43f5e" title="珊瑚红 (rose-500)" data-color="#f43f5e"></div>
-          <div class="color-swatch" style="background:#0f172a" title="暗黑 (slate-900)" data-color="#0f172a"></div>
-          <div class="color-swatch" style="background:#ffffff;border:1px solid #ccc" title="纯白 (white)" data-color="#ffffff"></div>
-          <input type="color" id="bg-color-picker" style="width:20px;height:20px;padding:0;border:none;cursor:pointer;border-radius:50%;" value="#3b82f6" />
+      <!-- 3. 尺寸与间距 -->
+      <div class="word-group-box">
+        <div class="word-group-header">
+          <span>尺寸与间距</span>
+          <span class="word-group-badge">Layout</span>
+        </div>
+        <!-- 尺寸行：宽 [-][+]、高 [-][+]、100%宽、自适应 -->
+        <div class="word-control-row">
+          <div class="tb-stepper-box">
+            <span class="tb-stepper-name">宽</span>
+            <button class="tb-step-btn" id="w-minus" title="宽度减少 20px">－</button>
+            <button class="tb-step-btn" id="w-plus" title="宽度增加 20px">＋</button>
+          </div>
+          <div class="tb-stepper-box">
+            <span class="tb-stepper-name">高</span>
+            <button class="tb-step-btn" id="h-minus" title="高度减少 20px">－</button>
+            <button class="tb-step-btn" id="h-plus" title="高度增加 20px">＋</button>
+          </div>
+          <button class="tb-btn" id="w-full" title="设置宽度 100% 全宽 (w-full)">100%宽</button>
+          <button class="tb-btn" id="sz-auto" title="宽高设为内容自适应 (w-auto / h-auto)">自适应</button>
+        </div>
+        <!-- 间距行：外距 [-][+]、内距 [-][+]、0外距、0内距 -->
+        <div class="word-control-row">
+          <div class="tb-stepper-box">
+            <span class="tb-stepper-name">外距</span>
+            <button class="tb-step-btn" id="m-minus" title="外边距减少 8px">－</button>
+            <button class="tb-step-btn" id="m-plus" title="外边距增加 16px">＋</button>
+          </div>
+          <div class="tb-stepper-box">
+            <span class="tb-stepper-name">内距</span>
+            <button class="tb-step-btn" id="p-minus" title="内边距减少 4px">－</button>
+            <button class="tb-step-btn" id="p-plus" title="内边距增加 8px">＋</button>
+          </div>
+          <button class="tb-btn" id="m-zero" title="外边距清零 (m-0)">0外距</button>
+          <button class="tb-btn" id="p-zero" title="内边距清零 (p-0)">0内距</button>
         </div>
       </div>
 
-      <!-- 文字颜色与样式 -->
-      <div class="tb-row">
-        <span class="tb-label">文字</span>
-        <div class="tb-group">
-          <button class="tb-btn" id="txt-bigger">A+</button>
-          <button class="tb-btn" id="txt-smaller">A-</button>
-          <button class="tb-btn" id="txt-bold">加粗</button>
-          <button class="tb-btn" id="txt-white" style="color:#000;background:#fff;border-color:#ccc">白字</button>
-          <button class="tb-btn" id="txt-dark" style="color:#fff;background:#000">黑字</button>
-          <button class="tb-btn" id="txt-edit">✏️ 改文案</button>
+      <!-- 4. 图层与排列 -->
+      <div class="word-group-box">
+        <div class="word-group-header">
+          <span>图层与排列</span>
+          <span class="word-group-badge">Layers</span>
+        </div>
+        <div class="word-arrange-grid">
+          <button class="word-arrange-btn" id="layer-up" title="图层上移一层 (z-index +1)，保持在原处绝对不动">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            </span>
+            <span>上移一层</span>
+            <span class="btn-subtext">保持原位</span>
+          </button>
+          <button class="word-arrange-btn" id="layer-down" title="图层下移一层 (z-index -1)，保持在原处绝对不动">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </span>
+            <span>下移一层</span>
+            <span class="btn-subtext">保持原位</span>
+          </button>
+          <button class="word-arrange-btn" id="move-swap" title="在网格/列表中与相邻组件调换位置">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+            </span>
+            <span>对调位置</span>
+            <span class="btn-subtext">相邻互换</span>
+          </button>
+          <button class="word-arrange-btn" id="tb-screenshot-el" title="截取当前组件图像">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </span>
+            <span>组件截图</span>
+            <span class="btn-subtext">导出图像</span>
+          </button>
+          <button class="word-arrange-btn" id="revert-el" title="重置当前组件样式">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </span>
+            <span>重置样式</span>
+            <span class="btn-subtext">恢复初始</span>
+          </button>
+          <button class="word-arrange-btn btn-danger" id="hide-el" title="隐藏此组件">
+            <span class="btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </span>
+            <span>隐藏组件</span>
+            <span class="btn-subtext">隐藏</span>
+          </button>
         </div>
       </div>
 
-      <!-- 圆角与形态 -->
-      <div class="tb-row">
-        <span class="tb-label">圆角</span>
-        <div class="tb-group">
-          <button class="tb-btn" id="r-0">直角(0)</button>
-          <button class="tb-btn" id="r-8">小圆(8px)</button>
-          <button class="tb-btn" id="r-16">大圆(16px)</button>
-          <button class="tb-btn" id="r-pill" style="color:#4f46e5;font-weight:700;">胶囊(全圆)</button>
+      <!-- 5. 需求批注 -->
+      <div class="word-group-box">
+        <div class="word-group-header">
+          <span>需求批注</span>
+          <span class="word-group-badge" style="background:#f1f5f9; color:#475569;">Prompt</span>
         </div>
-      </div>
-
-      <!-- 排序与删除 -->
-      <div class="tb-row" style="border-top:1px solid rgba(226, 232, 240, 0.7);padding-top:6px;">
-        <span class="tb-label">排版</span>
-        <div class="tb-group">
-          <button class="tb-btn" id="move-prev">⬆ 前移</button>
-          <button class="tb-btn" id="move-next">⬇ 后移</button>
-          <button class="tb-btn" id="tb-screenshot-el" title="单独截取当前组件画面">📸 截取</button>
-          <button class="tb-btn tb-btn-danger" id="hide-el">👁️ 隐藏/删除</button>
-          <button class="tb-btn" id="revert-el">🔄 重置当前</button>
-        </div>
-      </div>
-
-      <!-- 💬 需求与交互批注框 -->
-      <div class="tb-comment-box">
-        <div class="tb-comment-title">
-          <span>💬 添加业务/交互需求批注：</span>
-          <span style="font-weight:normal;color:#94a3b8;">自动合并到 Prompt</span>
-        </div>
-        <textarea class="tb-comment-input" id="tb-comment-field" placeholder="例如：点击弹出确认弹窗、增加加载动效、改从后端接口获取数据...">${entry.comment || ''}</textarea>
+        <textarea class="tb-comment-input" id="tb-comment-field" placeholder="输入对此组件的交互或业务逻辑要求，将随 Prompt 一并导出...">${entry.comment || ''}</textarea>
       </div>
     `;
 
-    // Bind toolbar actions
-    toolbar.querySelector("#tb-toggle-snap").onclick = () => toggleSnap();
+    // Copy component name on chip click
+    const copyChip = toolbar.querySelector("#tb-copy-comp-name");
+    if (copyChip) {
+      copyChip.onclick = (e) => {
+        e.stopPropagation();
+        const selectorText = summary.selector;
+        navigator.clipboard.writeText(selectorText).then(() => {
+          showToast(`已复制选择器: ${selectorText}`);
+        }).catch(() => {
+          const ta = document.createElement("textarea");
+          ta.value = selectorText;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast(`已复制选择器: ${selectorText}`);
+        });
+      };
+    }
+
+    // Select Parent container button
+    const selectParentBtn = toolbar.querySelector("#tb-select-parent");
+    if (selectParentBtn) {
+      if (!el.parentElement || el.parentElement === document.body || el.parentElement === document.documentElement) {
+        selectParentBtn.disabled = true;
+        selectParentBtn.style.opacity = "0.4";
+        selectParentBtn.style.cursor = "not-allowed";
+      } else {
+        selectParentBtn.onclick = (e) => {
+          e.stopPropagation();
+          const parent = el.parentElement;
+          selectedEl = parent;
+          renderToolbar(parent);
+          updateSelection();
+          showToast(`已选中父级: <${parent.tagName.toLowerCase()}> ${parent.className ? '.' + parent.className.split(' ')[0] : ''}`);
+        };
+      }
+    }
+
+    // Select Child element button (Cycles through children)
+    const selectChildBtn = toolbar.querySelector("#tb-select-child");
+    if (selectChildBtn) {
+      const validChildren = Array.from(el.children || []).filter(c => {
+        return c.nodeType === 1 && 
+               !c.hasAttribute("data-canvascode-ignore") &&
+               !c.classList.contains("canvascode-host") &&
+               !['SCRIPT', 'STYLE', 'LINK', 'BR'].includes(c.tagName);
+      });
+
+      if (validChildren.length === 0) {
+        selectChildBtn.disabled = true;
+        selectChildBtn.style.opacity = "0.4";
+        selectChildBtn.style.cursor = "not-allowed";
+        selectChildBtn.title = "当前元素内无子组件";
+      } else {
+        selectChildBtn.onclick = (e) => {
+          e.stopPropagation();
+          let nextIdx = 0;
+          if (el.__lastChildIdx !== undefined) {
+            nextIdx = (el.__lastChildIdx + 1) % validChildren.length;
+          }
+          el.__lastChildIdx = nextIdx;
+          const targetChild = validChildren[nextIdx];
+
+          selectedEl = targetChild;
+          renderToolbar(targetChild);
+          updateSelection();
+          const tag = targetChild.tagName.toLowerCase();
+          const cls = targetChild.className ? '.' + targetChild.className.split(' ')[0] : '';
+          const countInfo = validChildren.length > 1 ? ` (${nextIdx + 1}/${validChildren.length})` : '';
+          showToast(`已选中子级: <${tag}> ${cls}${countInfo}`);
+        };
+      }
+    }
+
+    // Bind toolbar top actions
     toolbar.querySelector("#tb-close").onclick = () => {
       selectedEl = null;
       updateSelection();
@@ -1516,7 +2118,7 @@
       recordComment(el, e.target.value);
     };
 
-    // Width / Height
+    // Width / Height (宽 / 高 加减按钮)
     toolbar.querySelector("#w-plus").onclick = () => {
       const curW = parseInt(style.width) || el.offsetWidth;
       recordChange(el, "width", `${curW + 20}px`, "宽度增加20px");
@@ -1525,19 +2127,25 @@
       const curW = parseInt(style.width) || el.offsetWidth;
       recordChange(el, "width", `${Math.max(20, curW - 20)}px`, "宽度减少20px");
     };
+    toolbar.querySelector("#h-plus").onclick = () => {
+      const curH = parseInt(style.height) || el.offsetHeight;
+      recordChange(el, "minHeight", `${curH + 20}px`, "高度增加20px");
+      recordChange(el, "height", `${curH + 20}px`, "高度增加20px");
+    };
+    toolbar.querySelector("#h-minus").onclick = () => {
+      const curH = parseInt(style.height) || el.offsetHeight;
+      recordChange(el, "minHeight", `${Math.max(20, curH - 20)}px`, "高度减少20px");
+      recordChange(el, "height", `${Math.max(20, curH - 20)}px`, "高度减少20px");
+    };
     toolbar.querySelector("#w-full").onclick = () => {
       recordChange(el, "width", "100%", "宽度全宽(w-full)");
     };
-    toolbar.querySelector("#h-plus").onclick = () => {
-      const curH = parseInt(style.height) || el.offsetHeight;
-      recordChange(el, "minHeight", `${curH + 15}px`, "最小高度增加");
-    };
     toolbar.querySelector("#sz-auto").onclick = () => {
       recordChange(el, "width", "auto", "宽度自适应(w-auto)");
-      recordChange(el, "height", "auto", "高度自适应");
+      recordChange(el, "height", "auto", "高度自适应(h-auto)");
     };
 
-    // Margins / Paddings
+    // Margins / Paddings (外距 / 内距 加减按钮与清零)
     toolbar.querySelector("#m-plus").onclick = () => {
       const cur = parseInt(style.marginTop) || 0;
       recordChange(el, "marginTop", `${cur + 16}px`, "上外边距增大(mt)");
@@ -1548,6 +2156,17 @@
       recordChange(el, "marginTop", `${Math.max(0, cur - 8)}px`, "上外边距缩小");
       recordChange(el, "marginBottom", `${Math.max(0, cur - 8)}px`, "下外边距缩小");
     };
+    const mZeroBtn = toolbar.querySelector("#m-zero");
+    if (mZeroBtn) {
+      mZeroBtn.onclick = () => {
+        recordChange(el, "marginTop", "0px", "外边距清零(mt-0)");
+        recordChange(el, "marginBottom", "0px", "外边距清零(mb-0)");
+        recordChange(el, "marginLeft", "0px", "外边距清零");
+        recordChange(el, "marginRight", "0px", "外边距清零");
+        showToast("已将外边距清零 (m-0)");
+      };
+    }
+
     toolbar.querySelector("#p-plus").onclick = () => {
       const curP = parseInt(style.paddingTop) || 4;
       const curPl = parseInt(style.paddingLeft) || 8;
@@ -1558,6 +2177,13 @@
       const curPl = parseInt(style.paddingLeft) || 8;
       recordChange(el, "padding", `${Math.max(0, curP - 4)}px ${Math.max(0, curPl - 6)}px`, "内边距整体缩小");
     };
+    const pZeroBtn = toolbar.querySelector("#p-zero");
+    if (pZeroBtn) {
+      pZeroBtn.onclick = () => {
+        recordChange(el, "padding", "0px", "内边距清零(p-0)");
+        showToast("已将内边距清零 (p-0)");
+      };
+    }
 
     // Background color
     toolbar.querySelectorAll(".color-swatch").forEach(swatch => {
@@ -1570,53 +2196,109 @@
     };
 
     // Typography
+    const sizeValBadge = toolbar.querySelector("#txt-size-val");
     toolbar.querySelector("#txt-bigger").onclick = () => {
       const sz = parseInt(style.fontSize) || 14;
-      recordChange(el, "fontSize", `${sz + 2}px`, "字号增大");
+      const nextSz = sz + 2;
+      recordChange(el, "fontSize", `${nextSz}px`, "字号增大");
+      if (sizeValBadge) sizeValBadge.textContent = `${nextSz}px`;
     };
     toolbar.querySelector("#txt-smaller").onclick = () => {
       const sz = parseInt(style.fontSize) || 14;
-      recordChange(el, "fontSize", `${Math.max(10, sz - 2)}px`, "字号减小");
+      const nextSz = Math.max(10, sz - 2);
+      recordChange(el, "fontSize", `${nextSz}px`, "字号减小");
+      if (sizeValBadge) sizeValBadge.textContent = `${nextSz}px`;
     };
     toolbar.querySelector("#txt-bold").onclick = () => {
-      const isBold = style.fontWeight === "bold" || parseInt(style.fontWeight) >= 700;
-      recordChange(el, "fontWeight", isBold ? "normal" : "700", isBold ? "字体常规" : "字体加粗(font-bold)");
+      const currentlyBold = style.fontWeight === "bold" || parseInt(style.fontWeight) >= 700;
+      recordChange(el, "fontWeight", currentlyBold ? "normal" : "700", currentlyBold ? "字体常规" : "字体加粗(font-bold)");
+      const btn = toolbar.querySelector("#txt-bold");
+      if (btn) btn.classList.toggle("tb-btn-primary", !currentlyBold);
     };
-    toolbar.querySelector("#txt-white").onclick = () => {
-      recordChange(el, "color", "#ffffff", "文字改为白色(text-white)");
-    };
-    toolbar.querySelector("#txt-dark").onclick = () => {
-      recordChange(el, "color", "#0f172a", "文字改为深黑(text-slate-900)");
-    };
-    toolbar.querySelector("#txt-edit").onclick = () => {
-      const originalText = el.innerText || "";
-      const newText = prompt("编辑文案内容：", originalText);
-      if (newText !== null && newText !== originalText) {
-        recordChange(el, "innerText", newText, `文案修改为 "${newText}"`);
-      }
+    toolbar.querySelectorAll(".txt-color-swatch").forEach(swatch => {
+      swatch.onclick = () => {
+        recordChange(el, "color", swatch.dataset.color, `文字颜色调整 (${swatch.title})`);
+      };
+    });
+    const txtColorPicker = toolbar.querySelector("#txt-color-picker");
+    if (txtColorPicker) {
+      txtColorPicker.oninput = (e) => {
+        recordChange(el, "color", e.target.value, "文字颜色自定义");
+      };
+    }
+
+    // Radius Slider Logic
+    const rSlider = toolbar.querySelector("#r-slider");
+    const rValBadge = toolbar.querySelector("#r-val-badge");
+    const rPillBtn = toolbar.querySelector("#r-pill");
+
+    const compStyle = window.getComputedStyle(el);
+    const compRadius = parseInt(compStyle.borderRadius) || 0;
+    const isPill = compStyle.borderRadius === "9999px" || compRadius >= 999;
+
+    if (isPill) {
+      rSlider.value = 64;
+      rValBadge.textContent = "全圆";
+    } else {
+      rSlider.value = Math.min(64, compRadius);
+      rValBadge.textContent = `${compRadius}px`;
+    }
+
+    // Real-time visual feedback while dragging slider
+    rSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value);
+      el.style.borderRadius = `${val}px`;
+      rValBadge.textContent = `${val}px`;
+      updateSelection();
+    });
+
+    // Commit change to history stack and AI prompt on release
+    rSlider.addEventListener("change", (e) => {
+      const val = parseInt(e.target.value);
+      let tailwind = `rounded-[${val}px]`;
+      if (val === 0) tailwind = "rounded-none";
+      else if (val === 8) tailwind = "rounded-lg";
+      else if (val === 12) tailwind = "rounded-xl";
+      else if (val === 16) tailwind = "rounded-2xl";
+      else if (val === 24) tailwind = "rounded-3xl";
+
+      recordChange(el, "borderRadius", `${val}px`, `圆角调整为 ${val}px (${tailwind})`);
+      updateSelection();
+      showToast(`圆角已设为: ${val}px`);
+    });
+
+    // One-click full pill button
+    rPillBtn.onclick = () => {
+      rSlider.value = 64;
+      rValBadge.textContent = "全圆";
+      recordChange(el, "borderRadius", "9999px", "全圆角 (rounded-full)");
+      updateSelection();
+      showToast("已设为全圆角");
     };
 
-    // Radius
-    toolbar.querySelector("#r-0").onclick = () => recordChange(el, "borderRadius", "0px", "直角(rounded-none)");
-    toolbar.querySelector("#r-8").onclick = () => recordChange(el, "borderRadius", "8px", "圆角8px(rounded-lg)");
-    toolbar.querySelector("#r-16").onclick = () => recordChange(el, "borderRadius", "16px", "大圆角16px(rounded-2xl)");
-    toolbar.querySelector("#r-pill").onclick = () => recordChange(el, "borderRadius", "9999px", "胶囊全圆角(rounded-full)");
-
-    // Ordering / Hiding
-    toolbar.querySelector("#move-prev").onclick = () => {
-      if (el.previousElementSibling) {
-        el.parentNode.insertBefore(el, el.previousElementSibling);
-        recordChange(el, "order", "-1", "元素顺序向前移动");
-        updateSelection();
-      }
-    };
-    toolbar.querySelector("#move-next").onclick = () => {
-      if (el.nextElementSibling) {
-        el.parentNode.insertBefore(el, el.nextElementSibling);
-        recordChange(el, "order", "+1", "元素顺序向后移动");
-        updateSelection();
-      }
-    };
+    // Layer Z-Index (100% Keeps In Place / 保持在原处绝对不动)
+    const layerUpBtn = toolbar.querySelector("#layer-up");
+    if (layerUpBtn) {
+      layerUpBtn.onclick = () => moveElementZIndex(el, 1);
+    }
+    const layerDownBtn = toolbar.querySelector("#layer-down");
+    if (layerDownBtn) {
+      layerDownBtn.onclick = () => moveElementZIndex(el, -1);
+    }
+    // Swap position in layout flow (with adjacent card/container)
+    const moveSwapBtn = toolbar.querySelector("#move-swap");
+    if (moveSwapBtn) {
+      moveSwapBtn.onclick = () => moveElementOrder(el, 1);
+    }
+    // Fallbacks for any legacy bindings
+    const movePrevBtn = toolbar.querySelector("#move-prev");
+    if (movePrevBtn) {
+      movePrevBtn.onclick = () => moveElementZIndex(el, 1);
+    }
+    const moveNextBtn = toolbar.querySelector("#move-next");
+    if (moveNextBtn) {
+      moveNextBtn.onclick = () => moveElementZIndex(el, -1);
+    }
     toolbar.querySelector("#hide-el").onclick = () => {
       recordChange(el, "display", "none", "隐藏/删除该元素(hidden)");
       selectedEl = null;
@@ -1655,33 +2337,134 @@
       }
 
       for (const [prop, v] of Object.entries(data.mods)) {
-        const tw = v.tailwind ? ` 👉 **建议 Tailwind 类名**: \`${v.tailwind}\`` : "";
+        const tw = v.tailwind ? ` (建议 Tailwind: \`${v.tailwind}\`)` : "";
         const snap = v.snapNote ? ` *(对齐: ${v.snapNote})*` : "";
         itemsMarkdown += `- **${v.label}**：从 \`${v.original || '默认'}\` 调整为 \`${v.current}\`${tw}${snap}\n`;
       }
 
       if (data.comment) {
-        itemsMarkdown += `- 💡 **【自定义交互与业务需求批注】**：${data.comment}\n`;
+        itemsMarkdown += `- **需求批注**：${data.comment}\n`;
       }
       idx++;
     });
 
-    return `请根据我在界面上的可视化微调与批注，修改对应前端组件源码：
+    return `请根据界面上的可视化调整与批注，修改对应前端组件源码：
 
-### 📋 页面调整与需求清单：
+### 界面调整与需求清单：
 ${itemsMarkdown}
-### 🛠️ 代码更新原则：
-1. **优先 Tailwind 规范**：若项目已使用 Tailwind CSS，请优先使用清单中推荐的类名（如 \`bg-emerald-500 rounded-full mt-4\`）替换旧类名，切勿硬写内联 \`style\`。
-2. **位置与对齐**：对于拖拽微调的元素，请结合上下文（Flex/Grid 排版、Margin 外边距或相对定位）优雅落地对齐关系。
-3. **落实需求批注**：请完整实现每个组件批注中要求的交互、动画或接口数据逻辑。
-4. **保持功能完整**：保持原有的接口数据流、响应式适配和业务逻辑完好。`;
+### 代码更新规范：
+1. **优先 Tailwind 规范**：若项目已使用 Tailwind CSS，请优先使用推荐类名替换旧类名，避免内联 style。
+2. **布局与对齐**：对于拖拽调整的元素，请结合上下文（Flex/Grid 排版、Margin 外边距或定位）规范实现对齐。
+3. **落实需求批注**：请完整实现各个组件批注中要求的交互、动画或数据逻辑。
+4. **保持功能完整**：保持原有的数据流、响应式适配和业务逻辑完好。`;
+  }
+
+  // --- INLINE WYSIWYG DIRECT TEXT EDITING (PPT / Figma in-place style) ---
+  let inlineEditingEl = null;
+  let inlineEditingOriginalText = "";
+
+  function startInlineTextEdit(target) {
+    if (!target) return;
+    if (inlineEditingEl) finishInlineTextEdit(true);
+
+    inlineEditingEl = target;
+    inlineEditingOriginalText = (target.innerText || target.textContent || "").trim();
+
+    // Hide selection box, toolbar and hover highlight during editing
+    if (selectBox) selectBox.style.display = "none";
+    if (toolbar) toolbar.style.display = "none";
+    if (hoverBox) hoverBox.style.display = "none";
+
+    target.contentEditable = "true";
+    target.spellcheck = false;
+    target.style.outline = "2px dashed #6366f1";
+    target.style.outlineOffset = "3px";
+    target.style.cursor = "text";
+    target.focus();
+
+    // Select text for quick inline replacement
+    try {
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } catch (err) {}
+
+    showToast("进入文本编辑模式（Enter 保存，Esc 取消）");
+
+    function onInlineKeyDown(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        finishInlineTextEdit(true);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        finishInlineTextEdit(false);
+      }
+    }
+
+    function onInlineBlur() {
+      setTimeout(() => {
+        if (inlineEditingEl === target) {
+          finishInlineTextEdit(true);
+        }
+      }, 120);
+    }
+
+    target._canvascodeKeyDown = onInlineKeyDown;
+    target._canvascodeBlur = onInlineBlur;
+    target.addEventListener("keydown", onInlineKeyDown);
+    target.addEventListener("blur", onInlineBlur, { once: true });
+  }
+
+  function finishInlineTextEdit(save = true) {
+    if (!inlineEditingEl) return;
+    const el = inlineEditingEl;
+    inlineEditingEl = null;
+
+    if (el._canvascodeKeyDown) {
+      el.removeEventListener("keydown", el._canvascodeKeyDown);
+      delete el._canvascodeKeyDown;
+    }
+    if (el._canvascodeBlur) {
+      el.removeEventListener("blur", el._canvascodeBlur);
+      delete el._canvascodeBlur;
+    }
+
+    el.contentEditable = "false";
+    el.style.outline = "";
+    el.style.outlineOffset = "";
+    el.style.cursor = "";
+
+    if (save) {
+      const currentText = (el.innerText || el.textContent || "").trim();
+      if (currentText !== inlineEditingOriginalText) {
+        recordChange(el, "innerText", currentText, `文案修改为 "${currentText}"`);
+        showToast(`文本已更新: "${currentText}"`);
+      }
+    } else {
+      el.innerText = inlineEditingOriginalText;
+      showToast("已取消文案编辑");
+    }
+
+    selectedEl = el;
+    renderToolbar(selectedEl);
+    updateSelection();
   }
 
   // --- MOUSE LISTENERS ---
   function onMouseMove(e) {
+    if (inlineEditingEl) {
+      hoverBox.style.display = "none";
+      return;
+    }
     if (!window.__aiVisualTweakActive || isDragging || isToolbarDragging || isResizing) return;
     const target = e.target;
     if (host.contains(target) || target === host) return;
+    if (target.closest && target.closest("[data-canvascode-ignore]")) {
+      hoverBox.style.display = "none";
+      return;
+    }
 
     if (target === document.body || target === document.documentElement) {
       hoverBox.style.display = "none";
@@ -1701,9 +2484,16 @@ ${itemsMarkdown}
   }
 
   function onClick(e) {
+    if (inlineEditingEl) {
+      if (e.target === inlineEditingEl || inlineEditingEl.contains(e.target)) {
+        return;
+      }
+      finishInlineTextEdit(true);
+    }
     if (!window.__aiVisualTweakActive || isDragging || isToolbarDragging || isResizing) return;
     const target = e.target;
     if (host.contains(target) || target === host) return;
+    if (target.closest && target.closest("[data-canvascode-ignore]")) return;
 
     // Clicking on body or html background deselects current component
     if (target === document.body || target === document.documentElement) {
@@ -1729,19 +2519,14 @@ ${itemsMarkdown}
     if (!window.__aiVisualTweakActive || isDragging || isToolbarDragging || isResizing) return;
     const target = e.target;
     if (host.contains(target) || target === host) return;
+    if (target.closest && target.closest("[data-canvascode-ignore]")) return;
     if (target === document.body || target === document.documentElement) return;
 
     e.preventDefault();
     e.stopPropagation();
 
-    // Fast text editing on double-click
-    const originalText = (target.innerText || target.textContent || "").trim();
-    const newText = prompt(`编辑 <${target.tagName.toLowerCase()}> 的文案内容：`, originalText);
-    if (newText !== null && newText !== originalText) {
-      recordChange(target, "innerText", newText, `文案修改为 "${newText}"`);
-      showToast(`✏️ 文案已更新: "${newText}"`);
-      updateSelection();
-    }
+    // Start direct in-place editing!
+    startInlineTextEdit(target);
   }
 
   window.addEventListener("mousemove", onMouseMove, true);
@@ -1759,9 +2544,49 @@ ${itemsMarkdown}
   const btnCopyPrompt = shadow.getElementById("btn-copy-prompt");
   const btnResetAll = shadow.getElementById("btn-reset-all");
   const btnExit = shadow.getElementById("btn-exit");
+  function setTweakActiveMode(active) {
+    const newState = typeof active === "boolean" ? active : !window.__aiVisualTweakActive;
+    window.__aiVisualTweakActive = newState;
+
+    if (!newState) {
+      if (selectedEl) {
+        selectedEl = null;
+        updateSelection();
+      }
+      hoverBox.style.display = "none";
+      selectBox.style.display = "none";
+      toolbar.style.display = "none";
+      dockPanel.style.display = "none";
+
+      dockPill.classList.add("paused");
+      dockPill.innerHTML = `
+        <span class="dock-status-dot paused"></span>
+        <span>微调模式 (已暂停)</span>
+      `;
+      dockPill.title = "当前处于浏览模式，点击开启微调";
+      showToast("已暂停微调模式");
+    } else {
+      dockPill.classList.remove("paused");
+      dockPill.innerHTML = `
+        <span class="dock-status-dot active"></span>
+        <span>CanvasCode (运行中)</span>
+        <span class="dock-badge" id="dock-count" style="${changes.size > 0 ? '' : 'display:none'}">${changes.size}</span>
+      `;
+      dockPill.title = "微调模式运行中，点击展开规格面板";
+      showToast("微调模式已开启");
+    }
+
+    window.dispatchEvent(new CustomEvent("canvascode:activeChanged", { detail: { active: newState } }));
+  }
+
+  window.__canvascodeSetMode = setTweakActiveMode;
 
   dockPill.onclick = () => {
-    dockPanel.style.display = dockPanel.style.display === "flex" ? "none" : "flex";
+    if (!window.__aiVisualTweakActive) {
+      setTweakActiveMode(true);
+    } else {
+      dockPanel.style.display = dockPanel.style.display === "flex" ? "none" : "flex";
+    }
   };
   panelClose.onclick = () => {
     dockPanel.style.display = "none";
@@ -1770,13 +2595,19 @@ ${itemsMarkdown}
   dockUndo.onclick = () => undo();
   dockRedo.onclick = () => redo();
 
+  const dockSnapBtn = shadow.getElementById("dock-toggle-snap");
+  if (dockSnapBtn) {
+    dockSnapBtn.onclick = () => toggleSnap();
+  }
+  updateSnapUI();
+
   
   // --- SCREENSHOT & MULTIMODAL EXPORT ENGINE ---
   let lastScreenshotBlob = null;
   let lastScreenshotDataUrl = "";
 
   async function takeScreenshot(targetNode) {
-    showToast("📸 正在捕获视觉改动画面...");
+    showToast("正在生成截图...");
 
     // Temporarily hide overlay UI during capture
     host.style.display = "none";
@@ -1811,14 +2642,14 @@ ${itemsMarkdown}
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': lastScreenshotBlob })
         ]);
-        showToast("🎉 截图已自动复制到系统剪贴板！可直接在对话框 Ctrl+V 粘贴");
+        showToast("截图已复制到剪贴板");
       } catch (clipErr) {
-        showToast("📸 截图完成！可在弹窗中点击下载或复制");
+        showToast("截图已生成，可在弹窗中查看");
       }
     } catch (err) {
       host.style.display = "block";
       console.error("Screenshot error:", err);
-      showToast("⚠️ 截图生成异常: " + (err.message || err));
+      showToast("截图生成失败: " + (err.message || err));
     }
   }
 
@@ -1835,9 +2666,9 @@ ${itemsMarkdown}
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': lastScreenshotBlob })
         ]);
-        showToast("🎉 图片已成功复制到剪贴板！");
+        showToast("图片已复制到剪贴板");
       } catch (err) {
-        showToast("⚠️ 浏览器安全限制，请直接使用右侧下载按钮");
+        showToast("剪贴板写入受限，请使用下载按钮");
       }
     }
   };
@@ -1848,14 +2679,14 @@ ${itemsMarkdown}
       a.href = lastScreenshotDataUrl;
       a.download = `canvascode-${Date.now()}.png`;
       a.click();
-      showToast("💾 截图图片已保存！");
+      showToast("截图已保存");
     }
   };
 
   shadow.getElementById("modal-copy-text").onclick = () => {
     const promptText = generatePrompt();
     navigator.clipboard.writeText(promptText).then(() => {
-      showToast("📋 文字 Prompt 已复制到剪贴板！");
+      showToast("Prompt 已复制到剪贴板");
     });
   };
 
@@ -1871,7 +2702,7 @@ ${itemsMarkdown}
   btnCopyPrompt.onclick = () => {
     const promptText = generatePrompt();
     navigator.clipboard.writeText(promptText).then(() => {
-      showToast("🎉 AI 修改指令已复制到剪贴板！可直接粘贴至 AI 对话框");
+      showToast("Prompt 已复制到剪贴板");
     }).catch(() => {
       const ta = document.createElement("textarea");
       ta.value = promptText;
@@ -1879,12 +2710,12 @@ ${itemsMarkdown}
       ta.select();
       document.execCommand("copy");
       document.body.removeChild(ta);
-      showToast("🎉 AI 修改指令已复制！");
+      showToast("Prompt 已复制到剪贴板");
     });
   };
 
   btnResetAll.onclick = () => {
-    if (confirm("确定要放弃所有调整并还原吗？")) {
+    if (confirm("确定要放弃所有调整并重置吗？")) {
       changes.forEach((data, el) => {
         for (const k of Object.keys(data.mods)) {
           el.style[k] = "";
@@ -1897,17 +2728,12 @@ ${itemsMarkdown}
       updateSelection();
       updateDock();
       updateHistoryButtons();
-      showToast("已还原所有改动");
+      showToast("已重置所有改动");
     }
   };
 
   btnExit.onclick = () => {
-    window.__aiVisualTweakActive = false;
-    host.style.display = "none";
-    hoverBox.style.display = "none";
-    selectBox.style.display = "none";
-    toolbar.style.display = "none";
-    showToast("已退出可视化微调模式");
+    setTweakActiveMode(false);
   };
 
   // --- STUDIO DESKTOP WORKBENCH BRIDGE ---
@@ -1946,7 +2772,7 @@ ${itemsMarkdown}
         const tailwindList = Object.values(val.mods || {}).map(m => m.tailwind).filter(Boolean).join(" ");
         historyList.push({
           selector: val.selector,
-          summary: modSummaries || "样式已微调",
+          summary: modSummaries || "样式已调整",
           tailwindClasses: tailwindList
         });
       });
@@ -1975,12 +2801,22 @@ ${itemsMarkdown}
   };
 
   window.__canvascodeToggleSnap = function(enabled) {
-    isSnapEnabled = enabled;
+    if (typeof enabled === "boolean") {
+      isSnapEnabled = enabled;
+    } else {
+      isSnapEnabled = !isSnapEnabled;
+    }
     updateSnapUI();
+    showToast(isSnapEnabled ? "已开启磁吸对齐" : "已关闭磁吸对齐 (自由移动)");
   };
 
   window.__canvascodeUndo = undo;
   window.__canvascodeRedo = redo;
+  window.__canvascodeResetSelection = () => {
+    selectedEl = null;
+    if (selectBox) selectBox.style.display = "none";
+    if (toolbar) toolbar.style.display = "none";
+  };
   window.__canvascodeTriggerExport = () => {
     const btn = shadow.getElementById("dock-screenshot");
     if (btn) btn.click();
@@ -1990,6 +2826,6 @@ ${itemsMarkdown}
   };
 
   updateHistoryButtons();
-  showToast("🚀 CanvasCode v1.0 已就绪！双击改字 · 8手柄拉伸 · Ctrl+Z撤销");
+  showToast("CanvasCode 已就绪");
 })();
 

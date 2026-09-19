@@ -9,6 +9,7 @@
 <p>像做 PPT 一样在真实网页上拖拽拉伸微调，一键生成供 AI 编程使用的精准规格书与视觉截图</p>
 
 <p align="center">
+  <a href="https://al1830329386-dev.github.io/canvascode/"><img src="https://img.shields.io/badge/Web%20Studio-免安装在线试玩-indigo.svg?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Web Studio" /></a>
   <a href="https://github.com/al1830329386-dev/canvascode/releases"><img src="https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge" alt="Version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0-blue.svg?style=for-the-badge" alt="License: GPL-3.0" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Desktop-Tauri%20%7C%20Rust-brightgreen.svg?style=for-the-badge" alt="Desktop: Tauri" /></a>
@@ -17,6 +18,7 @@
 </p>
 
 <p align="center">
+  <a href="https://al1830329386-dev.github.io/canvascode/">🚀 免安装在线试玩 (Web Studio)</a> •
   <a href="#-为什么做-canvascode">💡 为什么做 CanvasCode</a> •
   <a href="releases/README.md">📦 软件下载中心</a> •
   <a href="#-双形态架构浏览器插件--桌面独立工作台-studio">💻 双形态模式</a> •
